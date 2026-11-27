@@ -52,7 +52,7 @@ pkg = json.load(open(os.path.join(root, "package.json")))
 assert mp["name"] == "debrief" and mp["plugins"][0]["name"] == "debrief"
 assert pl["name"] == "debrief" and "./skills" in pl["skills"]
 assert os.path.isfile(os.path.join(root, pl["hooks"].lstrip("./")))
-assert pkg["name"] == "@linuxdynasty/debrief" and pkg["bin"]["debrief"] == "./bin/debrief.mjs"
+assert pkg["name"] == "@linuxdynasty/debrief" and pkg["bin"]["debrief"] == "bin/debrief.mjs"
 PY
 echo "ok - Claude marketplace, plugin, and npm package manifests validate"
 

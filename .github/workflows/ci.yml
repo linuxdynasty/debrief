@@ -26,11 +26,18 @@ jobs:
       - name: Verify packed npm tarball contents and CLI smoke test
         run: |
           set -euo pipefail
+          pub_warn="$(npm publish --dry-run 2>&1 || true)"
+          if grep -q "npm warn publish" <<<"${pub_warn}"; then
+            echo "npm publish --dry-run emitted warnings (run npm pkg fix):" >&2
+            printf '%s\n' "${pub_warn}" >&2
+            exit 1
+          fi
           tmp="$(mktemp -d)"
           trap 'rm -rf "${tmp}"' EXIT
           tgz="$(npm pack --pack-destination "${tmp}" | tail -n 1)"
           tar -xzf "${tmp}/${tgz}" -C "${tmp}"
           pkg="${tmp}/package"
+          node -e 'const p = require(process.argv[1]); if (!p.bin || p.bin.debrief !== "bin/debrief.mjs") { console.error("missing bin.debrief in packed package.json:", p.bin); process.exit(1); }' "${pkg}/package.json"
           required=(
             ".claude-plugin/marketplace.json"
             ".claude-plugin/plugin.json"
