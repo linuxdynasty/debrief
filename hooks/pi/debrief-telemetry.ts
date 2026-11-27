@@ -20,14 +20,15 @@ function timeoutMs(): number {
   return Number.isInteger(raw) && raw > 0 ? raw : SIBLING_TIMEOUT_MS;
 }
 
-function skillFromPath(raw: string): string {
+function skillFromPath(raw: unknown): string {
+  if (typeof raw !== "string") return "";
   const match = raw.match(SKILL_MD_RE);
   if (!match) return "";
   return match[1].replace(/[^A-Za-z0-9._-]/g, "").slice(0, 40);
 }
 
-function categoryFor(toolName: string): string {
-  if (toolName === "") return "unknown";
+function categoryFor(toolName: unknown): string {
+  if (typeof toolName !== "string" || toolName === "") return "unknown";
   return toolName.replace(/[^a-zA-Z0-9._-]/g, "").slice(0, 32) || "unknown";
 }
 
