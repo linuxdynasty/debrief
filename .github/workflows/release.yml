@@ -104,6 +104,23 @@ jobs:
           (cd dist && sha256sum "${tgz}" > SHA256SUMS)
           cat dist/SHA256SUMS
 
+      - name: Dry-run npm OIDC handshake (workflow_dispatch only)
+        if: github.event_name == 'workflow_dispatch' && vars.NPM_PUBLISH == 'true'
+        run: |
+          set -euo pipefail
+          unset NODE_AUTH_TOKEN NPM_TOKEN NPM_CONFIG_USERCONFIG
+          npm_ver="$(npm --version)"
+          if ! node -e 'const [a,b,c]=process.argv[1].split(".").map(Number); process.exit((a>11||(a===11&&b>5)||(a===11&&b===5&&c>=1))?0:1)' "${npm_ver}"; then
+            npm install -g "npm@>=11.5.1"
+          fi
+          log="$(mktemp)"
+          trap 'rm -f "${log}"' EXIT
+          npm publish "${TGZ_PATH}" --access public --provenance --dry-run --loglevel verbose 2>&1 | tee "${log}"
+          if grep -q "This command requires you to be logged in" "${log}"; then
+            echo "OIDC token exchange did not authenticate; inspect verbose oidc lines above." >&2
+            exit 1
+          fi
+
       - name: Publish to npm (when NPM_TOKEN or OIDC NPM_PUBLISH=true is configured)
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
         env:
@@ -123,7 +140,7 @@ jobs:
             if ! node -e 'const [a,b,c]=process.argv[1].split(".").map(Number); process.exit((a>11||(a===11&&b>5)||(a===11&&b===5&&c>=1))?0:1)' "${npm_ver}"; then
               npm install -g "npm@>=11.5.1"
             fi
-            npm publish "${TGZ_PATH}" --access public --provenance
+            npm publish "${TGZ_PATH}" --access public --provenance --loglevel verbose
           else
             echo "Skipping npm publish: set secrets.NPM_TOKEN or repo variable NPM_PUBLISH=true (for npm Trusted Publishing) to enable automatic npm publishing."
           fi
