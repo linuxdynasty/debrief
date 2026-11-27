@@ -218,7 +218,7 @@ cat >"${work}/facets-valid.json" <<'EOF'
 ]}
 EOF
 cw_ok="$(bash "${DEBRIEF}" cache-write --cache-dir "${cache}" "${work}/facets-valid.json")" && rc=0 || rc=1
-[ "${rc}" -eq 0 ] && rg -q '"written": 2' <<<"${cw_ok}" &&
+[ "${rc}" -eq 0 ] && grep -q '"written": 2' <<<"${cw_ok}" &&
 	ok "cache-write validates and stores facets atomically" ||
 	no "cache-write validates and stores facets atomically"
 
