@@ -21,6 +21,7 @@ CURRENT_ENV_VARS = (
     ("CODEX_THREAD_ID", "codex"),
     ("AGY_CONVERSATION_ID", "agy"),
     ("CONVERSATION_ID", "agy"),
+    ("PI_SESSION_ID", "pi"),
 )
 
 CURRENT_RECENCY_WINDOW_S = 900.0   # 15 minutes for CWD-based current-session detection
