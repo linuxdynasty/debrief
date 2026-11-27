@@ -5,7 +5,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "${ROOT}"
 
-for t in scripts/tests/test-debrief*.sh scripts/tests/test-installer.sh; do
+for t in scripts/tests/test-debrief*.sh scripts/tests/test-installer.sh scripts/tests/test-release-guard.sh; do
 	echo "=== ${t} ==="
 	bash "${t}"
 done
