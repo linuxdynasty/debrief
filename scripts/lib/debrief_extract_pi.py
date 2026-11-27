@@ -30,6 +30,9 @@ _SLASH_SKILL_RE = re.compile(r"(?:^|\s)/skill:([A-Za-z0-9._-]+)")
 _GIT_COMMIT_RE = re.compile(r"\bgit\s+commit\b")
 _GIT_PUSH_RE = re.compile(r"\bgit\s+push\b")
 _TOOL_PATH_KEYS = ("path", "file_path", "filePath")
+_PI_ONLY_TYPES = frozenset(
+    {"model_change", "thinking_level_change", "branch_summary", "context_edit"}
+)
 
 
 def _config_dir():
@@ -87,6 +90,40 @@ def session_id_from_path(path):
     return base[: -len(".jsonl")] if base.endswith(".jsonl") else base
 
 
+def _looks_like_pi(path):
+    """Recognise a Pi session by its own markers, not by the .jsonl suffix.
+
+    A --transcript-root override points every harness at the same directories,
+    so the suffix alone would let a foreign transcript masquerade as a Pi session.
+    """
+    try:
+        handle = open(path, encoding="utf-8", errors="replace")
+    except OSError:
+        return False
+    with handle:
+        seen = 0
+        for line in handle:
+            line = line.strip()
+            if not line:
+                continue
+            seen += 1
+            try:
+                rec = json.loads(line)
+            except ValueError:
+                rec = None
+            if isinstance(rec, dict):
+                rtype = rec.get("type")
+                if rtype == "session" and any(
+                    key in rec for key in ("version", "cwd", "id")
+                ):
+                    return True
+                if rtype in _PI_ONLY_TYPES:
+                    return True
+            if seen >= 5:
+                break
+    return False
+
+
 def discover(roots, since_epoch):
     """Yield (path, mtime) for Pi *.jsonl session files newer than since_epoch."""
     out = []
@@ -103,6 +140,8 @@ def discover(roots, since_epoch):
                 except OSError:
                     continue
                 if since_epoch and mtime < since_epoch:
+                    continue
+                if not _looks_like_pi(full):
                     continue
                 out.append((full, mtime))
     out.sort(key=lambda x: x[1], reverse=True)
