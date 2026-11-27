@@ -1,0 +1,2324 @@
+{
+  "by_harness": {
+    "agy": {
+      "errors": 53,
+      "facets": 20,
+      "prompts": 191,
+      "sessions": 20,
+      "tool_calls": 537,
+      "top_sessions": 20
+    },
+    "claude": {
+      "errors": 15,
+      "facets": 12,
+      "prompts": 95,
+      "sessions": 12,
+      "tool_calls": 281,
+      "top_sessions": 12
+    },
+    "muse": {
+      "errors": 66,
+      "facets": 30,
+      "prompts": 252,
+      "sessions": 30,
+      "tool_calls": 737,
+      "top_sessions": 30
+    }
+  },
+  "changepoints": {
+    "hooks": {
+      "edited_at": "2026-02-09T09:00:00+00:00",
+      "edited_sha": "77aa11b",
+      "post": {
+        "hook_blocked_per_session": 0.14,
+        "sessions": 22
+      },
+      "pre": {
+        "hook_blocked_per_session": 0.44,
+        "sessions": 18
+      },
+      "source": "git",
+      "verdict": "improved"
+    },
+    "skills": {
+      "split-the-work": {
+        "edited_at": "2026-02-11T09:00:00+00:00",
+        "edited_sha": "d4e5f6a",
+        "post": {
+          "errors_per_session": 0.5,
+          "loads": 6,
+          "redirects_per_session": 0.17
+        },
+        "pre": {
+          "errors_per_session": 1.25,
+          "loads": 4,
+          "redirects_per_session": 0.5
+        },
+        "source": "git",
+        "verdict": "improved"
+      },
+      "trace-the-regression": {
+        "edited_at": "2026-02-13T09:00:00+00:00",
+        "edited_sha": "3c2b1a0",
+        "post": {
+          "errors_per_session": 2.0,
+          "loads": 4,
+          "redirects_per_session": 0.75
+        },
+        "pre": {
+          "errors_per_session": 1.0,
+          "loads": 3,
+          "redirects_per_session": 0.33
+        },
+        "source": "git",
+        "verdict": "regressed"
+      }
+    },
+    "summary": {
+      "awaiting_data": 0,
+      "improved": 1,
+      "regressed": 1,
+      "skills_edited_in_window": 2,
+      "unchanged": 0
+    }
+  },
+  "charts": {
+    "avg_response_gap_s": 412.4,
+    "hour_counts_utc": {
+      "0": 2,
+      "1": 1,
+      "10": 19,
+      "11": 15,
+      "12": 11,
+      "13": 24,
+      "14": 27,
+      "15": 21,
+      "16": 16,
+      "17": 12,
+      "18": 9,
+      "19": 7,
+      "2": 0,
+      "20": 5,
+      "21": 4,
+      "22": 3,
+      "23": 2,
+      "3": 0,
+      "4": 0,
+      "5": 1,
+      "6": 3,
+      "7": 6,
+      "8": 14,
+      "9": 22
+    },
+    "interjection_reasons": {
+      "approval": 41,
+      "clarification": 33,
+      "debugging": 11,
+      "new_scope": 7,
+      "redirect_goal": 14,
+      "thought_process": 19
+    },
+    "languages": {
+      "Markdown": 33,
+      "Python": 96,
+      "Shell": 18,
+      "TypeScript": 41
+    },
+    "median_response_gap_s": 96.0,
+    "median_response_gap_s_by_harness": {
+      "agy": 104.0,
+      "claude": 71.0,
+      "muse": 88.0
+    },
+    "multi_agent_overlap": {
+      "overlap_events": 7,
+      "pct_of_messages": 14,
+      "sessions_involved": 5
+    },
+    "outcomes": {
+      "fully_achieved": 26,
+      "mostly_achieved": 14,
+      "not_achieved": 3,
+      "partially_achieved": 8
+    },
+    "primary_friction_types": {
+      "context_loss": 4,
+      "missing_path_probe": 6,
+      "tool_failure": 8,
+      "wrong_approach": 9
+    },
+    "prompt_distribution": {
+      "1": 14,
+      "10+": 6,
+      "2-3": 21,
+      "4-9": 17
+    },
+    "response_time_buckets": {
+      "1-2m": 18,
+      "10-30s": 16,
+      "2-10s": 19,
+      "2-5m": 15,
+      "30s-1m": 13,
+      "5-15m": 7,
+      ">15m": 12
+    },
+    "satisfaction": {
+      "frustrated": 7,
+      "neutral": 11,
+      "satisfied": 33
+    },
+    "session_types": {
+      "debugging": 12,
+      "implementation": 31,
+      "refactor": 9,
+      "review": 6
+    },
+    "tool_error_categories": {
+      "Command Failed": 22,
+      "Edit Failed": 9,
+      "File Not Found": 12,
+      "Hook Blocked": 6,
+      "Permission/Sandbox": 5,
+      "Timeout": 4
+    },
+    "top_tools": {
+      "bash": 611,
+      "edit": 219,
+      "grep": 78,
+      "read": 384,
+      "search_skills": 41,
+      "write": 96
+    },
+    "what_helped_most": {
+      "clear task statement": 28,
+      "small diffs": 19,
+      "tests first": 12
+    },
+    "what_you_wanted": {
+      "explore options": 9,
+      "ship a fix": 24,
+      "understand the code": 17
+    }
+  },
+  "coaching_playbook": {
+    "for_agents": [
+      {
+        "action": "Add an explicit AGENTS.md rule: locate paths before opening them, read target lines immediately before editing, and fix stale links with check-md-links.sh.",
+        "evidence": "12 File Not Found reads and 9 Edit Failed target mismatches.",
+        "title": "Stop blind path guesses and stale edits"
+      },
+      {
+        "action": "Put copy-pasteable working commands inside your top skills, run slow suites asynchronously, and file papercuts (scripts/file-papercut.sh) for brittle scripts.",
+        "evidence": "22 Command Failed exits and 4 tool timeouts (0 sessions hit 20+ errors).",
+        "title": "Harden recurring shell commands and slow tests"
+      },
+      {
+        "action": "Add a required failing-test-first step and a stop condition before the third retry of the same command.",
+        "evidence": "Highest error rate per session among loaded skills (2.00), and the most common follow-up reason is a goal redirect.",
+        "title": "Highest-leverage skill fix: trace-the-regression"
+      }
+    ],
+    "for_you": [
+      {
+        "action": "Start a fresh chat or run /compact when switching subtasks or around 20-30 turns so the agent stops re-reading old skills and drifting.",
+        "evidence": "1 sessions stacked 6+ skills and 0 burned 500M+ tokens (peak: 1.9M in one thread).",
+        "title": "Split long threads before context bloats"
+      },
+      {
+        "action": "State the target files, exact test command, and 'done' bar in prompt #1 \u2014 then mine 10+ threads with replay-eval.sh mine --top-steered to see which rules agents keep missing.",
+        "evidence": "You stepped in 14 times to pull an agent back on goal and had 6 threads needing 10+ messages.",
+        "title": "Front-load the finish line on complex tasks"
+      }
+    ]
+  },
+  "diff_from_prev": {
+    "accountability": [
+      {
+        "carry_over_count": 0,
+        "evidence": [
+          "tool_error_categories.Command Failed -6"
+        ],
+        "metric": {
+          "curr": 1.33,
+          "name": "errors/session",
+          "prev": 1.8
+        },
+        "status": "implemented_verified",
+        "summary": "Added failing-test-first step",
+        "target": "prove-the-path"
+      },
+      {
+        "carry_over_count": 1,
+        "evidence": [
+          "eval_trends.agy.win_rate -0.11"
+        ],
+        "metric": {
+          "curr": 0.44,
+          "name": "eval win rate",
+          "prev": 0.55
+        },
+        "status": "implemented_ineffective",
+        "summary": "Added stop condition before third retry",
+        "target": "trace-the-regression"
+      },
+      {
+        "carry_over_count": 2,
+        "evidence": [
+          "no target change detected"
+        ],
+        "metric": {},
+        "status": "not_done",
+        "summary": "Write invariant list before first edit",
+        "target": "hold-the-invariant"
+      }
+    ],
+    "kpi_deltas": {
+      "cache_hit_pct": {
+        "curr": 73.2,
+        "delta": 3.8,
+        "improved": true,
+        "prev": 69.4
+      },
+      "errors_per_session": {
+        "curr": 0.61,
+        "delta": -0.1,
+        "improved": true,
+        "prev": 0.71
+      },
+      "eval_mean_win_rate": {
+        "curr": 0.58,
+        "delta": 0.04,
+        "improved": null,
+        "prev": 0.54
+      },
+      "hook_blocked": {
+        "curr": 6,
+        "delta": -3,
+        "improved": true,
+        "prev": 9
+      },
+      "redirect_per_session": {
+        "curr": 0.23,
+        "delta": -0.08,
+        "improved": true,
+        "prev": 0.31
+      }
+    },
+    "pareto_hv": {
+      "curr": 0.412,
+      "delta": 0.024,
+      "prev": 0.388
+    },
+    "prev_snapshot_id": "2026-01-29-demo",
+    "radar_diff": {
+      "area_curr": 0.44,
+      "area_delta_pct": 7.3,
+      "area_prev": 0.41,
+      "axes": {
+        "alignment": {
+          "curr": 0.82,
+          "delta": 0.06,
+          "direction": "improved",
+          "prev": 0.76
+        },
+        "cache": {
+          "curr": 0.73,
+          "delta": 0.04,
+          "direction": "improved",
+          "prev": 0.69
+        },
+        "efficiency": {
+          "curr": 0.71,
+          "delta": 0.0,
+          "direction": "flat",
+          "prev": 0.71
+        },
+        "quality": {
+          "curr": 0.58,
+          "delta": 0.04,
+          "direction": "improved",
+          "prev": 0.54
+        },
+        "reliability": {
+          "curr": 0.62,
+          "delta": 0.07,
+          "direction": "improved",
+          "prev": 0.55
+        },
+        "trigger": {
+          "curr": 0.64,
+          "delta": 0.0,
+          "direction": "flat",
+          "prev": 0.64
+        }
+      },
+      "improved_axes": [
+        "Quality",
+        "Reliability",
+        "Alignment",
+        "Cache"
+      ],
+      "regressed_axes": []
+    },
+    "scope_warnings": []
+  },
+  "eval_trends": {
+    "per_skill": {
+      "split-the-work": [
+        {
+          "cost_delta_in": -3200,
+          "cost_delta_out": -900,
+          "harness": "muse",
+          "last_recorded_at": "2026-02-04T09:00:00+00:00",
+          "noise_band": 0.1,
+          "pass_rate_with": 0.61,
+          "runs": 12,
+          "sha_short": "a1b2c3d",
+          "skill_sha": "a1b2c3d4e5",
+          "tool_calls_delta": -1.2,
+          "tool_errors_delta": -0.4,
+          "win_rate": 0.52
+        },
+        {
+          "cost_delta_in": -8100,
+          "cost_delta_out": -2400,
+          "harness": "muse",
+          "last_recorded_at": "2026-02-11T09:00:00+00:00",
+          "noise_band": 0.09,
+          "pass_rate_with": 0.74,
+          "runs": 14,
+          "sha_short": "d4e5f6a",
+          "skill_sha": "d4e5f6a7b8",
+          "tool_calls_delta": -2.6,
+          "tool_errors_delta": -1.1,
+          "win_rate": 0.71
+        }
+      ],
+      "trace-the-regression": [
+        {
+          "cost_delta_in": 1400,
+          "cost_delta_out": 600,
+          "harness": "agy",
+          "last_recorded_at": "2026-02-06T09:00:00+00:00",
+          "noise_band": 0.13,
+          "pass_rate_with": 0.5,
+          "runs": 10,
+          "sha_short": "9f8e7d6",
+          "skill_sha": "9f8e7d6c5b",
+          "tool_calls_delta": 0.8,
+          "tool_errors_delta": 0.6,
+          "win_rate": 0.55
+        },
+        {
+          "cost_delta_in": 5200,
+          "cost_delta_out": 2100,
+          "harness": "agy",
+          "last_recorded_at": "2026-02-13T09:00:00+00:00",
+          "noise_band": 0.14,
+          "pass_rate_with": 0.41,
+          "runs": 11,
+          "sha_short": "3c2b1a0",
+          "skill_sha": "3c2b1a09f8",
+          "tool_calls_delta": 1.9,
+          "tool_errors_delta": 1.4,
+          "win_rate": 0.44
+        }
+      ]
+    }
+  },
+  "evals": {
+    "mean_noise_band": 0.11,
+    "mean_win_rate": 0.58,
+    "skills_evaluated": 9
+  },
+  "facet_summaries": [],
+  "hooks": {
+    "agy": {
+      "hook_events": 31,
+      "sessions": 18,
+      "sessions_with_hook_events": 16
+    },
+    "events": 96,
+    "goal_blocked_watcher": 3,
+    "goal_done": 12,
+    "goal_released": 9,
+    "model_failures": {
+      "bash": 4,
+      "edit": 2
+    },
+    "nudge_blocked": {
+      "map-the-surface": 2,
+      "prove-the-path": 3
+    },
+    "sessions": 41
+  },
+  "interjections": {
+    "by_harness": {
+      "agy": {
+        "follow_up_rate_pct": 76.0,
+        "median_prompts": 9.0,
+        "sessions_with_prompts": 19
+      },
+      "claude": {
+        "follow_up_rate_pct": 82.0,
+        "median_prompts": 10.0,
+        "sessions_with_prompts": 18
+      },
+      "muse": {
+        "follow_up_rate_pct": 70.0,
+        "median_prompts": 8.0,
+        "sessions_with_prompts": 20
+      }
+    },
+    "follow_up_rate_pct": 78.4,
+    "prompt_bearing_sessions": 58,
+    "reasons": {
+      "approval": 41,
+      "clarification": 33,
+      "debugging": 11,
+      "new_scope": 7,
+      "redirect_goal": 14,
+      "thought_process": 19
+    },
+    "top_steered": [
+      {
+        "harness": "muse",
+        "prompts": 34,
+        "session_id": "demo-session-a1",
+        "tool_calls": 96
+      },
+      {
+        "harness": "agy",
+        "prompts": 27,
+        "session_id": "demo-session-b2",
+        "tool_calls": 74
+      },
+      {
+        "harness": "claude",
+        "prompts": 19,
+        "session_id": "demo-session-c3",
+        "tool_calls": 51
+      }
+    ],
+    "zero_prompt_sessions": 16
+  },
+  "meta": {
+    "child_sessions": 0,
+    "days_active": 11,
+    "facets_analyzed": 68,
+    "fixtures_excluded": 2,
+    "from": "2026-02-02",
+    "git_commits_in_transcripts": 21,
+    "git_pushes_in_transcripts": 5,
+    "harnesses": [
+      "muse",
+      "agy",
+      "claude"
+    ],
+    "msgs_per_day": 48.9,
+    "project": null,
+    "prompts": 538,
+    "repos": [
+      {
+        "added": 2140,
+        "deleted": 780,
+        "merges": 6,
+        "name": "atlas-relay"
+      },
+      {
+        "added": 680,
+        "deleted": 240,
+        "merges": 3,
+        "name": "quarry-cli"
+      },
+      {
+        "added": 410,
+        "deleted": 95,
+        "merges": 1,
+        "name": "signal-desk"
+      },
+      {
+        "added": 260,
+        "deleted": 40,
+        "merges": 0,
+        "name": "atlas-relay-docs"
+      }
+    ],
+    "scope": {
+      "all_time": false,
+      "days": 14,
+      "harnesses": [
+        "muse",
+        "agy",
+        "claude"
+      ],
+      "missing_sessions": [],
+      "mode": "harness",
+      "project": null,
+      "scope_key": "demo-fixture",
+      "session_ids": [],
+      "since": "2026-02-02"
+    },
+    "since": "2026-02-02",
+    "to": "2026-02-16",
+    "tool_calls": 1555,
+    "top_level_sessions": 62,
+    "total_sessions": 62
+  },
+  "not_tracked": [
+    "Per-hook firing counts (volume without signal; first-fire witnesses plus transcript joins cover compliance).",
+    "Codex and OpenCode hook nudge telemetry when their skill hooks are not installed.",
+    "Correlation is never causation: facet outcomes and satisfaction are model-estimated from bounded session digests."
+  ],
+  "papercuts": {
+    "per_skill": {
+      "guard-the-contract": {
+        "filed": 3,
+        "fixed": 1,
+        "open": 2
+      },
+      "prove-the-path": {
+        "filed": 3,
+        "fixed": 1,
+        "open": 2
+      },
+      "stage-the-env": {
+        "filed": 2,
+        "fixed": 0,
+        "open": 2
+      },
+      "trace-the-regression": {
+        "filed": 2,
+        "fixed": 0,
+        "open": 2
+      }
+    },
+    "total_filed": 14,
+    "total_fixed": 6,
+    "total_open": 8
+  },
+  "pareto": {
+    "head_regressions": [
+      {
+        "dominated_by": [
+          "9f8e7d6"
+        ],
+        "harness": "agy",
+        "head_cost_delta": 7300.0,
+        "head_quality": 0.44,
+        "head_sha": "3c2b1a0",
+        "skill": "trace-the-regression"
+      }
+    ],
+    "portfolio_dominated": [
+      {
+        "dominated_by": [
+          "guard-the-contract",
+          "lock-the-interface",
+          "map-the-surface",
+          "seed-the-fixture",
+          "split-the-work"
+        ],
+        "effectiveness": 0.49,
+        "friction_per_load": 1.953,
+        "loads": 8,
+        "noise_band": 0.13,
+        "overhead_per_load": 4275.0,
+        "pareto_status": "dominated",
+        "quality_source": "eval_win_rate",
+        "skill": "trim-the-noise",
+        "stratum": "execution"
+      },
+      {
+        "dominated_by": [
+          "draft-the-note",
+          "lock-the-interface",
+          "map-the-surface",
+          "prove-the-path",
+          "seed-the-fixture",
+          "ship-the-slice",
+          "split-the-work"
+        ],
+        "effectiveness": 0.44,
+        "friction_per_load": 3.6857,
+        "loads": 7,
+        "noise_band": 0.14,
+        "overhead_per_load": 2157.1,
+        "pareto_status": "dominated",
+        "quality_source": "eval_win_rate",
+        "skill": "trace-the-regression",
+        "stratum": "execution"
+      },
+      {
+        "dominated_by": [
+          "draft-the-note",
+          "map-the-surface",
+          "prove-the-path"
+        ],
+        "effectiveness": 0.53,
+        "friction_per_load": 2.92,
+        "loads": 6,
+        "noise_band": 0.11,
+        "overhead_per_load": 1366.7,
+        "pareto_status": "dominated",
+        "quality_source": "eval_win_rate",
+        "skill": "ship-the-slice",
+        "stratum": "execution"
+      },
+      {
+        "dominated_by": [
+          "map-the-surface"
+        ],
+        "effectiveness": 0.61,
+        "friction_per_load": 2.2,
+        "loads": 5,
+        "noise_band": 0.12,
+        "overhead_per_load": 1280.0,
+        "pareto_status": "dominated",
+        "quality_source": "eval_win_rate",
+        "skill": "draft-the-note",
+        "stratum": "execution"
+      },
+      {
+        "dominated_by": [
+          "draft-the-note",
+          "guard-the-contract",
+          "lock-the-interface",
+          "map-the-surface",
+          "prove-the-path",
+          "seed-the-fixture",
+          "ship-the-slice",
+          "split-the-work"
+        ],
+        "effectiveness": 0.47,
+        "friction_per_load": 4.6,
+        "loads": 5,
+        "noise_band": 0.13,
+        "overhead_per_load": 2780.0,
+        "pareto_status": "dominated",
+        "quality_source": "eval_win_rate",
+        "skill": "stage-the-env",
+        "stratum": "execution"
+      }
+    ],
+    "portfolio_fronts": [
+      {
+        "dominated": [
+          {
+            "dominated_by": [
+              "guard-the-contract",
+              "lock-the-interface",
+              "map-the-surface",
+              "seed-the-fixture",
+              "split-the-work"
+            ],
+            "effectiveness": 0.49,
+            "friction_per_load": 1.953,
+            "loads": 8,
+            "noise_band": 0.13,
+            "overhead_per_load": 4275.0,
+            "pareto_status": "dominated",
+            "quality_source": "eval_win_rate",
+            "skill": "trim-the-noise",
+            "stratum": "execution"
+          },
+          {
+            "dominated_by": [
+              "draft-the-note",
+              "lock-the-interface",
+              "map-the-surface",
+              "prove-the-path",
+              "seed-the-fixture",
+              "ship-the-slice",
+              "split-the-work"
+            ],
+            "effectiveness": 0.44,
+            "friction_per_load": 3.6857,
+            "loads": 7,
+            "noise_band": 0.14,
+            "overhead_per_load": 2157.1,
+            "pareto_status": "dominated",
+            "quality_source": "eval_win_rate",
+            "skill": "trace-the-regression",
+            "stratum": "execution"
+          },
+          {
+            "dominated_by": [
+              "draft-the-note",
+              "map-the-surface",
+              "prove-the-path"
+            ],
+            "effectiveness": 0.53,
+            "friction_per_load": 2.92,
+            "loads": 6,
+            "noise_band": 0.11,
+            "overhead_per_load": 1366.7,
+            "pareto_status": "dominated",
+            "quality_source": "eval_win_rate",
+            "skill": "ship-the-slice",
+            "stratum": "execution"
+          },
+          {
+            "dominated_by": [
+              "map-the-surface"
+            ],
+            "effectiveness": 0.61,
+            "friction_per_load": 2.2,
+            "loads": 5,
+            "noise_band": 0.12,
+            "overhead_per_load": 1280.0,
+            "pareto_status": "dominated",
+            "quality_source": "eval_win_rate",
+            "skill": "draft-the-note",
+            "stratum": "execution"
+          },
+          {
+            "dominated_by": [
+              "draft-the-note",
+              "guard-the-contract",
+              "lock-the-interface",
+              "map-the-surface",
+              "prove-the-path",
+              "seed-the-fixture",
+              "ship-the-slice",
+              "split-the-work"
+            ],
+            "effectiveness": 0.47,
+            "friction_per_load": 4.6,
+            "loads": 5,
+            "noise_band": 0.13,
+            "overhead_per_load": 2780.0,
+            "pareto_status": "dominated",
+            "quality_source": "eval_win_rate",
+            "skill": "stage-the-env",
+            "stratum": "execution"
+          }
+        ],
+        "frontier": [
+          {
+            "dominated_by": [],
+            "effectiveness": 0.62,
+            "friction_per_load": 1.4084,
+            "is_knee": false,
+            "loads": 11,
+            "noise_band": 0.11,
+            "overhead_per_load": 1127.3,
+            "pareto_status": "frontier",
+            "quality_source": "eval_win_rate",
+            "skill": "map-the-surface",
+            "stratum": "execution"
+          },
+          {
+            "dominated_by": [],
+            "effectiveness": 0.71,
+            "friction_per_load": 1.725,
+            "is_knee": false,
+            "loads": 10,
+            "noise_band": 0.09,
+            "overhead_per_load": 1890.0,
+            "pareto_status": "frontier",
+            "quality_source": "eval_win_rate",
+            "skill": "split-the-work",
+            "stratum": "execution"
+          },
+          {
+            "dominated_by": [],
+            "effectiveness": 0.58,
+            "friction_per_load": 1.3289,
+            "is_knee": false,
+            "loads": 9,
+            "noise_band": 0.12,
+            "overhead_per_load": 2388.9,
+            "pareto_status": "frontier",
+            "quality_source": "eval_win_rate",
+            "skill": "guard-the-contract",
+            "stratum": "execution"
+          },
+          {
+            "dominated_by": [],
+            "effectiveness": 0.66,
+            "friction_per_load": 2.5519,
+            "is_knee": false,
+            "loads": 9,
+            "noise_band": 0.1,
+            "overhead_per_load": 866.7,
+            "pareto_status": "frontier",
+            "quality_source": "eval_win_rate",
+            "skill": "prove-the-path",
+            "stratum": "execution"
+          },
+          {
+            "dominated_by": [],
+            "effectiveness": 0.74,
+            "friction_per_load": 1.8587,
+            "is_knee": true,
+            "loads": 7,
+            "noise_band": 0.08,
+            "overhead_per_load": 1371.4,
+            "pareto_status": "frontier",
+            "quality_source": "eval_win_rate",
+            "skill": "seed-the-fixture",
+            "stratum": "execution"
+          },
+          {
+            "dominated_by": [],
+            "effectiveness": 0.69,
+            "friction_per_load": 1.83,
+            "is_knee": false,
+            "loads": 6,
+            "noise_band": 0.1,
+            "overhead_per_load": 1883.3,
+            "pareto_status": "frontier",
+            "quality_source": "eval_win_rate",
+            "skill": "lock-the-interface",
+            "stratum": "execution"
+          }
+        ],
+        "hypervolume": 0.7399,
+        "knee_skill": "seed-the-fixture",
+        "quality_source": "eval_win_rate",
+        "skills_count": 11,
+        "stratum": "execution"
+      }
+    ],
+    "summary": {
+      "head_regressions_count": 1,
+      "mean_portfolio_hv": 0.7399,
+      "mean_version_hv": 0.5514,
+      "portfolio_dominated_count": 5,
+      "portfolio_strata": 1,
+      "version_series": 2
+    },
+    "version_fronts": [
+      {
+        "dominated": [
+          {
+            "cost_delta": -4100.0,
+            "dominated_by": [
+              "d4e5f6a"
+            ],
+            "friction_delta": -0.4,
+            "last_recorded_at": "2026-02-04T09:00:00+00:00",
+            "noise_band": 0.1,
+            "pareto_status": "dominated",
+            "quality": 0.52,
+            "sha": "a1b2c3d",
+            "skill_sha": "a1b2c3d4e5"
+          }
+        ],
+        "frontier": [
+          {
+            "cost_delta": -10500.0,
+            "dominated_by": [],
+            "friction_delta": -1.1,
+            "is_knee": true,
+            "last_recorded_at": "2026-02-11T09:00:00+00:00",
+            "noise_band": 0.09,
+            "pareto_status": "frontier",
+            "quality": 0.71,
+            "sha": "d4e5f6a",
+            "skill_sha": "d4e5f6a7b8"
+          }
+        ],
+        "harness": "muse",
+        "head_regressed": false,
+        "head_sha": "d4e5f6a",
+        "hypervolume": 0.71,
+        "knee_sha": "d4e5f6a",
+        "skill": "split-the-work",
+        "versions_count": 2
+      },
+      {
+        "dominated": [
+          {
+            "cost_delta": 7300.0,
+            "dominated_by": [
+              "9f8e7d6"
+            ],
+            "friction_delta": 1.4,
+            "last_recorded_at": "2026-02-13T09:00:00+00:00",
+            "noise_band": 0.14,
+            "pareto_status": "dominated",
+            "quality": 0.44,
+            "sha": "3c2b1a0",
+            "skill_sha": "3c2b1a09f8"
+          }
+        ],
+        "frontier": [
+          {
+            "cost_delta": 2000.0,
+            "dominated_by": [],
+            "friction_delta": 0.6,
+            "is_knee": true,
+            "last_recorded_at": "2026-02-06T09:00:00+00:00",
+            "noise_band": 0.13,
+            "pareto_status": "frontier",
+            "quality": 0.55,
+            "sha": "9f8e7d6",
+            "skill_sha": "9f8e7d6c5b"
+          }
+        ],
+        "harness": "agy",
+        "head_regressed": true,
+        "head_sha": "3c2b1a0",
+        "hypervolume": 0.3929,
+        "knee_sha": "9f8e7d6",
+        "skill": "trace-the-regression",
+        "versions_count": 2
+      }
+    ]
+  },
+  "projects": {
+    "atlas-relay": 2,
+    "quarry-cli": 3,
+    "signal-desk": 4
+  },
+  "radar_profile": {
+    "axes": {
+      "alignment": {
+        "raw": "0.23 redirects/sess (14 / 62)",
+        "score": 0.8158,
+        "source": "interjections"
+      },
+      "cache": {
+        "raw": "74.1% cache hit",
+        "score": 0.7412,
+        "source": "cache_by_harness"
+      },
+      "efficiency": {
+        "raw": "0.00M overhead/load (18 skills)",
+        "score": 0.9995,
+        "source": "skill_costs"
+      },
+      "quality": {
+        "raw": "58.2% eval win rate (17 skills)",
+        "score": 0.5824,
+        "source": "eval_win_rate"
+      },
+      "reliability": {
+        "raw": "2.16 errors/sess (134 errs / 62 sess)",
+        "score": 0.4806,
+        "source": "transcripts"
+      },
+      "trigger": {
+        "raw": "F1 0.760 (9 skill-deciders)",
+        "score": 0.76,
+        "source": "trigger_evals"
+      }
+    },
+    "order": [
+      "quality",
+      "trigger",
+      "reliability",
+      "alignment",
+      "efficiency",
+      "cache"
+    ]
+  },
+  "repositories": [
+    {
+      "errors": 55,
+      "interjection_reasons": {
+        "approval": 45,
+        "clarification": 36,
+        "debugging": 12,
+        "new_scope": 8,
+        "redirect_goal": 15,
+        "thought_process": 21
+      },
+      "interjections": 137,
+      "main_sessions": 29,
+      "prompts": 268,
+      "repo": "atlas-relay",
+      "tokens_total": 7790661,
+      "tool_calls": 752,
+      "top_interjection_reason": "approval",
+      "top_skills": [
+        "prove-the-path",
+        "draft-the-note",
+        "close-the-loop"
+      ],
+      "total_sessions": 29,
+      "unattributed_sessions": 0
+    },
+    {
+      "errors": 56,
+      "interjection_reasons": {
+        "approval": 25,
+        "clarification": 20,
+        "debugging": 7,
+        "new_scope": 4,
+        "redirect_goal": 8,
+        "thought_process": 11
+      },
+      "interjections": 75,
+      "main_sessions": 15,
+      "prompts": 147,
+      "repo": "quarry-cli",
+      "tokens_total": 4050330,
+      "tool_calls": 428,
+      "top_interjection_reason": "approval",
+      "top_skills": [
+        "prove-the-path",
+        "name-the-boundary",
+        "stage-the-env"
+      ],
+      "total_sessions": 15,
+      "unattributed_sessions": 0
+    },
+    {
+      "errors": 10,
+      "interjection_reasons": {
+        "approval": 12,
+        "clarification": 9,
+        "debugging": 3,
+        "new_scope": 2,
+        "redirect_goal": 4,
+        "thought_process": 5
+      },
+      "interjections": 35,
+      "main_sessions": 10,
+      "prompts": 70,
+      "repo": "signal-desk",
+      "tokens_total": 1934665,
+      "tool_calls": 216,
+      "top_interjection_reason": "approval",
+      "top_skills": [
+        "break-the-cycle",
+        "seed-the-fixture",
+        "draft-the-note"
+      ],
+      "total_sessions": 10,
+      "unattributed_sessions": 0
+    },
+    {
+      "errors": 13,
+      "interjection_reasons": {
+        "approval": 9,
+        "clarification": 7,
+        "debugging": 2,
+        "new_scope": 2,
+        "redirect_goal": 3,
+        "thought_process": 4
+      },
+      "interjections": 27,
+      "main_sessions": 8,
+      "prompts": 53,
+      "repo": "atlas-relay-docs",
+      "tokens_total": 1490665,
+      "tool_calls": 159,
+      "top_interjection_reason": "approval",
+      "top_skills": [
+        "draft-the-note",
+        "break-the-cycle",
+        "close-the-loop"
+      ],
+      "total_sessions": 8,
+      "unattributed_sessions": 0
+    }
+  ],
+  "session_health": {
+    "bloated_skill_sessions": 1,
+    "cache_by_harness": {
+      "agy": {
+        "cache_hit_pct": 62.7,
+        "cache_write_pct": 4.4,
+        "fresh_pct": 32.9,
+        "tokens_in": 1738100
+      },
+      "claude": {
+        "cache_hit_pct": 91.3,
+        "cache_write_pct": 4.4,
+        "fresh_pct": 4.3,
+        "tokens_in": 864500
+      },
+      "muse": {
+        "cache_hit_pct": 76.3,
+        "cache_write_pct": 4.4,
+        "fresh_pct": 19.3,
+        "tokens_in": 2293200
+      }
+    },
+    "high_error_sessions": 0,
+    "mega_token_sessions": 0,
+    "models": {
+      "atlas-large": 28,
+      "atlas-mini": 38,
+      "quarry-flash": 45,
+      "signal-pro": 54
+    },
+    "outliers": [
+      {
+        "duration_min": 214.0,
+        "errors": 14,
+        "flags": [
+          "7 skills stacked"
+        ],
+        "harness": "muse",
+        "prompts": 34,
+        "repo": "atlas-relay",
+        "session_id": "demo-a1",
+        "skills_loaded": 7,
+        "tokens_total": 1940000
+      }
+    ],
+    "skill_stacking": {
+      "0 skills": 13,
+      "1-2 skills (focused)": 36,
+      "3-5 skills (busy)": 12,
+      "6+ skills (bloated)": 1
+    }
+  },
+  "sessions_detail": [],
+  "skill_costs": {
+    "by_harness": {
+      "agy": {
+        "attributed_cache_read": 4584000.0,
+        "attributed_cache_write": 0.0,
+        "attributed_errors": 49.0,
+        "attributed_tokens_in": 1356100.0,
+        "attributed_tokens_out": 458400.0,
+        "errors": 53.0,
+        "sessions": 20,
+        "token_bearing_sessions": 17,
+        "tokens_cache_read": 1089464.0,
+        "tokens_cache_write": 76400.0,
+        "tokens_in": 1738100.0,
+        "tokens_out": 592100.0,
+        "unattributed_cache_read": 171900.0,
+        "unattributed_cache_write": 0.0,
+        "unattributed_errors": 4.0,
+        "unattributed_sessions": 3,
+        "unattributed_tokens_in": 267400.0,
+        "unattributed_tokens_out": 95500.0
+      },
+      "claude": {
+        "attributed_cache_read": 2280000.0,
+        "attributed_cache_write": 0.0,
+        "attributed_errors": 11.0,
+        "attributed_tokens_in": 674500.0,
+        "attributed_tokens_out": 228000.0,
+        "errors": 15.0,
+        "sessions": 12,
+        "token_bearing_sessions": 9,
+        "tokens_cache_read": 789260.0,
+        "tokens_cache_write": 38000.0,
+        "tokens_in": 864500.0,
+        "tokens_out": 294500.0,
+        "unattributed_cache_read": 85500.0,
+        "unattributed_cache_write": 0.0,
+        "unattributed_errors": 4.0,
+        "unattributed_sessions": 3,
+        "unattributed_tokens_in": 133000.0,
+        "unattributed_tokens_out": 47500.0
+      },
+      "muse": {
+        "attributed_cache_read": 6048000.0,
+        "attributed_cache_write": 0.0,
+        "attributed_errors": 62.0,
+        "attributed_tokens_in": 1789200.0,
+        "attributed_tokens_out": 604800.0,
+        "errors": 66.0,
+        "sessions": 30,
+        "token_bearing_sessions": 27,
+        "tokens_cache_read": 1749888.0000000002,
+        "tokens_cache_write": 100800.0,
+        "tokens_in": 2293200.0,
+        "tokens_out": 781200.0,
+        "unattributed_cache_read": 226800.0,
+        "unattributed_cache_write": 0.0,
+        "unattributed_errors": 4.0,
+        "unattributed_sessions": 3,
+        "unattributed_tokens_in": 352800.0,
+        "unattributed_tokens_out": 126000.0
+      }
+    },
+    "caveats": [
+      "Post-load attribution credits tokens and errors only to skills already loaded at each turn (pre-load work and skill-free sessions land in unattributed).",
+      "Tokens are mined across the three harnesses in this fixture; older sessions without usage fields report 0.",
+      "Estimated context tax approximates (SKILL.md bytes / 4) * turns after load, so it is a lower bound."
+    ],
+    "mined_skills": {
+      "guard-the-contract": 1,
+      "lock-the-interface": 1,
+      "map-the-surface": 1,
+      "prove-the-path": 1,
+      "seed-the-fixture": 1,
+      "ship-the-slice": 1,
+      "split-the-work": 1,
+      "trace-the-regression": 1,
+      "trim-the-noise": 1
+    },
+    "per_skill": [
+      {
+        "attributed_cache_read": 14942000.0,
+        "attributed_cache_write": 0.0,
+        "attributed_errors": 6.0,
+        "attributed_tokens_in": 3470400.0,
+        "attributed_tokens_out": 1349600.0000000002,
+        "attributed_tokens_total": 4820000.0,
+        "error_rate_per_session": 0.55,
+        "estimated_context_tax_tokens": 12400.0,
+        "median_duration_min": 41.0,
+        "median_gap_s": 74.0,
+        "sessions": 11,
+        "skill": "map-the-surface",
+        "token_bearing_sessions": 10
+      },
+      {
+        "attributed_cache_read": 12834000.0,
+        "attributed_cache_write": 0.0,
+        "attributed_errors": 9.0,
+        "attributed_tokens_in": 2980800.0,
+        "attributed_tokens_out": 1159200.0,
+        "attributed_tokens_total": 4140000.0,
+        "error_rate_per_session": 0.9,
+        "estimated_context_tax_tokens": 18900.0,
+        "median_duration_min": 52.0,
+        "median_gap_s": 61.0,
+        "sessions": 10,
+        "skill": "split-the-work",
+        "token_bearing_sessions": 9
+      },
+      {
+        "attributed_cache_read": 11656000.0,
+        "attributed_cache_write": 0.0,
+        "attributed_errors": 4.0,
+        "attributed_tokens_in": 2707200.0,
+        "attributed_tokens_out": 1052800.0,
+        "attributed_tokens_total": 3760000.0,
+        "error_rate_per_session": 0.44,
+        "estimated_context_tax_tokens": 21500.0,
+        "median_duration_min": 47.0,
+        "median_gap_s": 88.0,
+        "sessions": 9,
+        "skill": "guard-the-contract",
+        "token_bearing_sessions": 8
+      },
+      {
+        "attributed_cache_read": 9672000.0,
+        "attributed_cache_write": 0.0,
+        "attributed_errors": 12.0,
+        "attributed_tokens_in": 2246400.0,
+        "attributed_tokens_out": 873600.0000000001,
+        "attributed_tokens_total": 3120000.0,
+        "error_rate_per_session": 1.33,
+        "estimated_context_tax_tokens": 7800.0,
+        "median_duration_min": 33.0,
+        "median_gap_s": 52.0,
+        "sessions": 9,
+        "skill": "prove-the-path",
+        "token_bearing_sessions": 8
+      },
+      {
+        "attributed_cache_read": 9114000.0,
+        "attributed_cache_write": 0.0,
+        "attributed_errors": 5.0,
+        "attributed_tokens_in": 2116800.0,
+        "attributed_tokens_out": 823200.0000000001,
+        "attributed_tokens_total": 2940000.0,
+        "error_rate_per_session": 0.62,
+        "estimated_context_tax_tokens": 34200.0,
+        "median_duration_min": 58.0,
+        "median_gap_s": 95.0,
+        "sessions": 8,
+        "skill": "trim-the-noise",
+        "token_bearing_sessions": 7
+      },
+      {
+        "attributed_cache_read": 8091000.0,
+        "attributed_cache_write": 0.0,
+        "attributed_errors": 3.0,
+        "attributed_tokens_in": 1879200.0,
+        "attributed_tokens_out": 730800.0000000001,
+        "attributed_tokens_total": 2610000.0,
+        "error_rate_per_session": 0.43,
+        "estimated_context_tax_tokens": 9600.0,
+        "median_duration_min": 29.0,
+        "median_gap_s": 68.0,
+        "sessions": 7,
+        "skill": "seed-the-fixture",
+        "token_bearing_sessions": 6
+      },
+      {
+        "attributed_cache_read": 7688000.0,
+        "attributed_cache_write": 0.0,
+        "attributed_errors": 14.0,
+        "attributed_tokens_in": 1785600.0,
+        "attributed_tokens_out": 694400.0000000001,
+        "attributed_tokens_total": 2480000.0,
+        "error_rate_per_session": 2.0,
+        "estimated_context_tax_tokens": 15100.0,
+        "median_duration_min": 63.0,
+        "median_gap_s": 112.0,
+        "sessions": 7,
+        "skill": "trace-the-regression",
+        "token_bearing_sessions": 6
+      },
+      {
+        "attributed_cache_read": 6665000.0,
+        "attributed_cache_write": 0.0,
+        "attributed_errors": 2.0,
+        "attributed_tokens_in": 1548000.0,
+        "attributed_tokens_out": 602000.0,
+        "attributed_tokens_total": 2150000.0,
+        "error_rate_per_session": 0.33,
+        "estimated_context_tax_tokens": 11300.0,
+        "median_duration_min": 36.0,
+        "median_gap_s": 57.0,
+        "sessions": 6,
+        "skill": "lock-the-interface",
+        "token_bearing_sessions": 5
+      },
+      {
+        "attributed_cache_read": 6138000.0,
+        "attributed_cache_write": 0.0,
+        "attributed_errors": 7.0,
+        "attributed_tokens_in": 1425600.0,
+        "attributed_tokens_out": 554400.0,
+        "attributed_tokens_total": 1980000.0,
+        "error_rate_per_session": 1.17,
+        "estimated_context_tax_tokens": 8200.0,
+        "median_duration_min": 44.0,
+        "median_gap_s": 81.0,
+        "sessions": 6,
+        "skill": "ship-the-slice",
+        "token_bearing_sessions": 5
+      },
+      {
+        "attributed_cache_read": 5084000.0,
+        "attributed_cache_write": 0.0,
+        "attributed_errors": 1.0,
+        "attributed_tokens_in": 1180800.0,
+        "attributed_tokens_out": 459200.00000000006,
+        "attributed_tokens_total": 1640000.0,
+        "error_rate_per_session": 0.2,
+        "estimated_context_tax_tokens": 6400.0,
+        "median_duration_min": 22.0,
+        "median_gap_s": 134.0,
+        "sessions": 5,
+        "skill": "draft-the-note",
+        "token_bearing_sessions": 4
+      },
+      {
+        "attributed_cache_read": 4712000.0,
+        "attributed_cache_write": 0.0,
+        "attributed_errors": 11.0,
+        "attributed_tokens_in": 1094400.0,
+        "attributed_tokens_out": 425600.00000000006,
+        "attributed_tokens_total": 1520000.0,
+        "error_rate_per_session": 2.2,
+        "estimated_context_tax_tokens": 13900.0,
+        "median_duration_min": 31.0,
+        "median_gap_s": 76.0,
+        "sessions": 5,
+        "skill": "stage-the-env",
+        "token_bearing_sessions": 4
+      },
+      {
+        "attributed_cache_read": 3968000.0,
+        "attributed_cache_write": 0.0,
+        "attributed_errors": 6.0,
+        "attributed_tokens_in": 921600.0,
+        "attributed_tokens_out": 358400.00000000006,
+        "attributed_tokens_total": 1280000.0,
+        "error_rate_per_session": 1.5,
+        "estimated_context_tax_tokens": 10700.0,
+        "median_duration_min": 55.0,
+        "median_gap_s": 118.0,
+        "sessions": 4,
+        "skill": "watch-the-drift",
+        "token_bearing_sessions": 3
+      },
+      {
+        "attributed_cache_read": 3534000.0,
+        "attributed_cache_write": 0.0,
+        "attributed_errors": 2.0,
+        "attributed_tokens_in": 820800.0,
+        "attributed_tokens_out": 319200.00000000006,
+        "attributed_tokens_total": 1140000.0,
+        "error_rate_per_session": 0.5,
+        "estimated_context_tax_tokens": 5900.0,
+        "median_duration_min": 27.0,
+        "median_gap_s": 64.0,
+        "sessions": 4,
+        "skill": "name-the-boundary",
+        "token_bearing_sessions": 3
+      },
+      {
+        "attributed_cache_read": 2914000.0,
+        "attributed_cache_write": 0.0,
+        "attributed_errors": 9.0,
+        "attributed_tokens_in": 676800.0,
+        "attributed_tokens_out": 263200.0,
+        "attributed_tokens_total": 940000.0,
+        "error_rate_per_session": 3.0,
+        "estimated_context_tax_tokens": 16800.0,
+        "median_duration_min": 71.0,
+        "median_gap_s": 143.0,
+        "sessions": 3,
+        "skill": "break-the-cycle",
+        "token_bearing_sessions": 2
+      },
+      {
+        "attributed_cache_read": 2511000.0,
+        "attributed_cache_write": 0.0,
+        "attributed_errors": 1.0,
+        "attributed_tokens_in": 583200.0,
+        "attributed_tokens_out": 226800.00000000003,
+        "attributed_tokens_total": 810000.0,
+        "error_rate_per_session": 0.33,
+        "estimated_context_tax_tokens": 4700.0,
+        "median_duration_min": 24.0,
+        "median_gap_s": 58.0,
+        "sessions": 3,
+        "skill": "score-the-run",
+        "token_bearing_sessions": 2
+      },
+      {
+        "attributed_cache_read": 1612000.0,
+        "attributed_cache_write": 0.0,
+        "attributed_errors": 0.0,
+        "attributed_tokens_in": 374400.0,
+        "attributed_tokens_out": 145600.0,
+        "attributed_tokens_total": 520000.0,
+        "error_rate_per_session": 0.0,
+        "estimated_context_tax_tokens": 3600.0,
+        "median_duration_min": 19.0,
+        "median_gap_s": 91.0,
+        "sessions": 2,
+        "skill": "close-the-loop",
+        "token_bearing_sessions": 1
+      },
+      {
+        "attributed_cache_read": 1426000.0,
+        "attributed_cache_write": 0.0,
+        "attributed_errors": 4.0,
+        "attributed_tokens_in": 331200.0,
+        "attributed_tokens_out": 128800.00000000001,
+        "attributed_tokens_total": 460000.0,
+        "error_rate_per_session": 2.0,
+        "estimated_context_tax_tokens": 8900.0,
+        "median_duration_min": 38.0,
+        "median_gap_s": 103.0,
+        "sessions": 2,
+        "skill": "read-the-signal",
+        "token_bearing_sessions": 1
+      },
+      {
+        "attributed_cache_read": 651000.0,
+        "attributed_cache_write": 0.0,
+        "attributed_errors": 0.0,
+        "attributed_tokens_in": 151200.0,
+        "attributed_tokens_out": 58800.00000000001,
+        "attributed_tokens_total": 210000.0,
+        "error_rate_per_session": 0.0,
+        "estimated_context_tax_tokens": 2800.0,
+        "median_duration_min": 14.0,
+        "median_gap_s": 47.0,
+        "sessions": 1,
+        "skill": "mark-the-gap",
+        "token_bearing_sessions": 1
+      }
+    ],
+    "totals": {
+      "errors": 45,
+      "sessions": 62,
+      "tokens_cache_read": 31600000.0,
+      "tokens_cache_write": 410000.0,
+      "tokens_in": 9420000.0,
+      "tokens_out": 3180000.0
+    },
+    "unattributed": {
+      "errors": 7.0,
+      "sessions": 9,
+      "tokens_cache_read": 4100000.0,
+      "tokens_cache_write": 0.0,
+      "tokens_in": 1240000.0,
+      "tokens_out": 420000.0
+    }
+  },
+  "skill_recommendations": [
+    {
+      "action": "modify",
+      "reason": "Highest error rate per session among loaded skills (2.00), and the most common follow-up reason is a goal redirect.",
+      "suggestion": "Add a required failing-test-first step and a stop condition before the third retry of the same command.",
+      "target": "trace-the-regression"
+    },
+    {
+      "action": "create",
+      "reason": "Four sessions lost context across compaction while editing a shared schema.",
+      "suggestion": "Create a skill that writes the invariant list to a file before the first edit and re-reads it after any compaction.",
+      "target": "hold-the-invariant"
+    },
+    {
+      "action": "remove",
+      "reason": "Loaded once in sixteen days and produced no attributed tokens.",
+      "suggestion": "Fold its checklist into prove-the-path, or delete it.",
+      "target": "mark-the-gap"
+    }
+  ],
+  "skill_table": [
+    {
+      "attributed_cache_read": 14942000.0,
+      "attributed_cache_write": 0.0,
+      "attributed_errors": 6.0,
+      "attributed_tokens_in": 3470400.0,
+      "attributed_tokens_out": 1349600.0000000002,
+      "attributed_tokens_total": 4820000.0,
+      "error_rate_per_session": 0.55,
+      "estimated_context_tax_tokens": 12400.0,
+      "eval_noise_band": 0.11,
+      "eval_pairs": 10,
+      "eval_pass_rate": 0.705,
+      "eval_win_rate": 0.62,
+      "forced": 2,
+      "forced_pct": 22.2,
+      "goal_sessions": 0,
+      "hook_loads": 9,
+      "median_duration_min": 41.0,
+      "median_gap_s": 74.0,
+      "mined_loads": 11,
+      "no_progress_share_pct": null,
+      "papercut_filed": 3,
+      "papercut_fixed": 2,
+      "papercut_open": 1,
+      "redirect_interjections": 7,
+      "skill": "map-the-surface",
+      "token_bearing_sessions": 10,
+      "top_interjection_reason": "approval",
+      "trigger_decider": "rubric",
+      "trigger_f1": 0.78,
+      "trigger_precision": 0.51,
+      "trigger_recall": 0.76
+    },
+    {
+      "attributed_cache_read": 12834000.0,
+      "attributed_cache_write": 0.0,
+      "attributed_errors": 9.0,
+      "attributed_tokens_in": 2980800.0,
+      "attributed_tokens_out": 1159200.0,
+      "attributed_tokens_total": 4140000.0,
+      "error_rate_per_session": 0.9,
+      "estimated_context_tax_tokens": 18900.0,
+      "eval_noise_band": 0.09,
+      "eval_pairs": 8,
+      "eval_pass_rate": 0.728,
+      "eval_win_rate": 0.71,
+      "forced": 1,
+      "forced_pct": 12.5,
+      "goal_sessions": 0,
+      "hook_loads": 8,
+      "median_duration_min": 52.0,
+      "median_gap_s": 61.0,
+      "mined_loads": 10,
+      "no_progress_share_pct": null,
+      "papercut_filed": 3,
+      "papercut_fixed": 3,
+      "papercut_open": 0,
+      "redirect_interjections": 7,
+      "skill": "split-the-work",
+      "token_bearing_sessions": 9,
+      "top_interjection_reason": "clarification",
+      "trigger_decider": "rubric",
+      "trigger_f1": 0.72,
+      "trigger_precision": 0.42,
+      "trigger_recall": 0.69
+    },
+    {
+      "attributed_cache_read": 11656000.0,
+      "attributed_cache_write": 0.0,
+      "attributed_errors": 4.0,
+      "attributed_tokens_in": 2707200.0,
+      "attributed_tokens_out": 1052800.0,
+      "attributed_tokens_total": 3760000.0,
+      "error_rate_per_session": 0.44,
+      "estimated_context_tax_tokens": 21500.0,
+      "eval_noise_band": 0.12,
+      "eval_pairs": 12,
+      "eval_pass_rate": 0.695,
+      "eval_win_rate": 0.58,
+      "forced": 0,
+      "forced_pct": 0.0,
+      "goal_sessions": 0,
+      "hook_loads": 7,
+      "median_duration_min": 47.0,
+      "median_gap_s": 88.0,
+      "mined_loads": 9,
+      "no_progress_share_pct": null,
+      "papercut_filed": 3,
+      "papercut_fixed": 1,
+      "papercut_open": 2,
+      "redirect_interjections": 8,
+      "skill": "guard-the-contract",
+      "token_bearing_sessions": 8,
+      "top_interjection_reason": "approval",
+      "trigger_decider": "rubric",
+      "trigger_f1": 0.66,
+      "trigger_precision": 0.78,
+      "trigger_recall": 0.62
+    },
+    {
+      "attributed_cache_read": 9672000.0,
+      "attributed_cache_write": 0.0,
+      "attributed_errors": 12.0,
+      "attributed_tokens_in": 2246400.0,
+      "attributed_tokens_out": 873600.0000000001,
+      "attributed_tokens_total": 3120000.0,
+      "error_rate_per_session": 1.33,
+      "estimated_context_tax_tokens": 7800.0,
+      "eval_noise_band": 0.1,
+      "eval_pairs": 14,
+      "eval_pass_rate": 0.715,
+      "eval_win_rate": 0.66,
+      "forced": 3,
+      "forced_pct": 33.3,
+      "goal_sessions": 0,
+      "hook_loads": 9,
+      "median_duration_min": 33.0,
+      "median_gap_s": 52.0,
+      "mined_loads": 9,
+      "no_progress_share_pct": null,
+      "papercut_filed": 4,
+      "papercut_fixed": 1,
+      "papercut_open": 3,
+      "redirect_interjections": 8,
+      "skill": "prove-the-path",
+      "token_bearing_sessions": 8,
+      "top_interjection_reason": "approval",
+      "trigger_decider": "rubric",
+      "trigger_f1": 0.66,
+      "trigger_precision": 0.78,
+      "trigger_recall": 0.62
+    },
+    {
+      "attributed_cache_read": 9114000.0,
+      "attributed_cache_write": 0.0,
+      "attributed_errors": 5.0,
+      "attributed_tokens_in": 2116800.0,
+      "attributed_tokens_out": 823200.0000000001,
+      "attributed_tokens_total": 2940000.0,
+      "error_rate_per_session": 0.62,
+      "estimated_context_tax_tokens": 34200.0,
+      "eval_noise_band": 0.13,
+      "eval_pairs": 8,
+      "eval_pass_rate": 0.673,
+      "eval_win_rate": 0.49,
+      "forced": 2,
+      "forced_pct": 33.3,
+      "goal_sessions": 0,
+      "hook_loads": 6,
+      "median_duration_min": 58.0,
+      "median_gap_s": 95.0,
+      "mined_loads": 8,
+      "no_progress_share_pct": null,
+      "papercut_filed": 0,
+      "papercut_fixed": 0,
+      "papercut_open": 0,
+      "redirect_interjections": 8,
+      "skill": "trim-the-noise",
+      "token_bearing_sessions": 7,
+      "top_interjection_reason": "clarification",
+      "trigger_decider": "rubric",
+      "trigger_f1": 0.6,
+      "trigger_precision": 0.69,
+      "trigger_recall": 0.55
+    },
+    {
+      "attributed_cache_read": 8091000.0,
+      "attributed_cache_write": 0.0,
+      "attributed_errors": 3.0,
+      "attributed_tokens_in": 1879200.0,
+      "attributed_tokens_out": 730800.0000000001,
+      "attributed_tokens_total": 2610000.0,
+      "error_rate_per_session": 0.43,
+      "estimated_context_tax_tokens": 9600.0,
+      "eval_noise_band": 0.08,
+      "eval_pairs": 10,
+      "eval_pass_rate": 0.735,
+      "eval_win_rate": 0.74,
+      "forced": 1,
+      "forced_pct": 14.3,
+      "goal_sessions": 0,
+      "hook_loads": 7,
+      "median_duration_min": 29.0,
+      "median_gap_s": 68.0,
+      "mined_loads": 7,
+      "no_progress_share_pct": null,
+      "papercut_filed": 2,
+      "papercut_fixed": 1,
+      "papercut_open": 1,
+      "redirect_interjections": 9,
+      "skill": "seed-the-fixture",
+      "token_bearing_sessions": 6,
+      "top_interjection_reason": "approval",
+      "trigger_decider": "rubric",
+      "trigger_f1": 0.54,
+      "trigger_precision": 0.6,
+      "trigger_recall": 0.76
+    },
+    {
+      "attributed_cache_read": 7688000.0,
+      "attributed_cache_write": 0.0,
+      "attributed_errors": 14.0,
+      "attributed_tokens_in": 1785600.0,
+      "attributed_tokens_out": 694400.0000000001,
+      "attributed_tokens_total": 2480000.0,
+      "error_rate_per_session": 2.0,
+      "estimated_context_tax_tokens": 15100.0,
+      "eval_noise_band": 0.14,
+      "eval_pairs": 12,
+      "eval_pass_rate": 0.66,
+      "eval_win_rate": 0.44,
+      "forced": 2,
+      "forced_pct": 40.0,
+      "goal_sessions": 0,
+      "hook_loads": 5,
+      "median_duration_min": 63.0,
+      "median_gap_s": 112.0,
+      "mined_loads": 7,
+      "no_progress_share_pct": null,
+      "papercut_filed": 2,
+      "papercut_fixed": 0,
+      "papercut_open": 2,
+      "redirect_interjections": 9,
+      "skill": "trace-the-regression",
+      "token_bearing_sessions": 6,
+      "top_interjection_reason": "approval",
+      "trigger_decider": "rubric",
+      "trigger_f1": 0.54,
+      "trigger_precision": 0.6,
+      "trigger_recall": 0.76
+    },
+    {
+      "attributed_cache_read": 6665000.0,
+      "attributed_cache_write": 0.0,
+      "attributed_errors": 2.0,
+      "attributed_tokens_in": 1548000.0,
+      "attributed_tokens_out": 602000.0,
+      "attributed_tokens_total": 2150000.0,
+      "error_rate_per_session": 0.33,
+      "estimated_context_tax_tokens": 11300.0,
+      "eval_noise_band": 0.1,
+      "eval_pairs": 8,
+      "eval_pass_rate": 0.723,
+      "eval_win_rate": 0.69,
+      "forced": 0,
+      "forced_pct": 0.0,
+      "goal_sessions": 0,
+      "hook_loads": 6,
+      "median_duration_min": 36.0,
+      "median_gap_s": 57.0,
+      "mined_loads": 6,
+      "no_progress_share_pct": null,
+      "papercut_filed": 2,
+      "papercut_fixed": 2,
+      "papercut_open": 0,
+      "redirect_interjections": 9,
+      "skill": "lock-the-interface",
+      "token_bearing_sessions": 5,
+      "top_interjection_reason": "clarification",
+      "trigger_decider": "rubric",
+      "trigger_f1": 0.48,
+      "trigger_precision": 0.51,
+      "trigger_recall": 0.69
+    },
+    {
+      "attributed_cache_read": 6138000.0,
+      "attributed_cache_write": 0.0,
+      "attributed_errors": 7.0,
+      "attributed_tokens_in": 1425600.0,
+      "attributed_tokens_out": 554400.0,
+      "attributed_tokens_total": 1980000.0,
+      "error_rate_per_session": 1.17,
+      "estimated_context_tax_tokens": 8200.0,
+      "eval_noise_band": 0.11,
+      "eval_pairs": 10,
+      "eval_pass_rate": 0.683,
+      "eval_win_rate": 0.53,
+      "forced": 1,
+      "forced_pct": 25.0,
+      "goal_sessions": 0,
+      "hook_loads": 4,
+      "median_duration_min": 44.0,
+      "median_gap_s": 81.0,
+      "mined_loads": 6,
+      "no_progress_share_pct": null,
+      "papercut_filed": 1,
+      "papercut_fixed": 0,
+      "papercut_open": 1,
+      "redirect_interjections": 9,
+      "skill": "ship-the-slice",
+      "token_bearing_sessions": 5,
+      "top_interjection_reason": "clarification",
+      "trigger_decider": "rubric",
+      "trigger_f1": 0.48,
+      "trigger_precision": 0.51,
+      "trigger_recall": 0.69
+    },
+    {
+      "attributed_cache_read": 5084000.0,
+      "attributed_cache_write": 0.0,
+      "attributed_errors": 1.0,
+      "attributed_tokens_in": 1180800.0,
+      "attributed_tokens_out": 459200.00000000006,
+      "attributed_tokens_total": 1640000.0,
+      "error_rate_per_session": 0.2,
+      "estimated_context_tax_tokens": 6400.0,
+      "eval_noise_band": 0.12,
+      "eval_pairs": 8,
+      "eval_pass_rate": 0.703,
+      "eval_win_rate": 0.61,
+      "forced": 0,
+      "forced_pct": 0.0,
+      "goal_sessions": 0,
+      "hook_loads": 4,
+      "median_duration_min": 22.0,
+      "median_gap_s": 134.0,
+      "mined_loads": 5,
+      "no_progress_share_pct": null,
+      "papercut_filed": 1,
+      "papercut_fixed": 1,
+      "papercut_open": 0,
+      "redirect_interjections": 10,
+      "skill": "draft-the-note",
+      "token_bearing_sessions": 4,
+      "top_interjection_reason": "approval",
+      "trigger_decider": "rubric",
+      "trigger_f1": 0.78,
+      "trigger_precision": 0.42,
+      "trigger_recall": 0.62
+    },
+    {
+      "attributed_cache_read": 4712000.0,
+      "attributed_cache_write": 0.0,
+      "attributed_errors": 11.0,
+      "attributed_tokens_in": 1094400.0,
+      "attributed_tokens_out": 425600.00000000006,
+      "attributed_tokens_total": 1520000.0,
+      "error_rate_per_session": 2.2,
+      "estimated_context_tax_tokens": 13900.0,
+      "eval_noise_band": 0.13,
+      "eval_pairs": 12,
+      "eval_pass_rate": 0.667,
+      "eval_win_rate": 0.47,
+      "forced": 2,
+      "forced_pct": 40.0,
+      "goal_sessions": 0,
+      "hook_loads": 5,
+      "median_duration_min": 31.0,
+      "median_gap_s": 76.0,
+      "mined_loads": 5,
+      "no_progress_share_pct": null,
+      "papercut_filed": 2,
+      "papercut_fixed": 0,
+      "papercut_open": 2,
+      "redirect_interjections": 10,
+      "skill": "stage-the-env",
+      "token_bearing_sessions": 4,
+      "top_interjection_reason": "approval",
+      "trigger_decider": "rubric",
+      "trigger_f1": 0.78,
+      "trigger_precision": 0.42,
+      "trigger_recall": 0.62
+    },
+    {
+      "attributed_cache_read": 3968000.0,
+      "attributed_cache_write": 0.0,
+      "attributed_errors": 6.0,
+      "attributed_tokens_in": 921600.0,
+      "attributed_tokens_out": 358400.00000000006,
+      "attributed_tokens_total": 1280000.0,
+      "error_rate_per_session": 1.5,
+      "estimated_context_tax_tokens": 10700.0,
+      "eval_noise_band": 0.12,
+      "eval_pairs": 8,
+      "eval_pass_rate": 0.677,
+      "eval_win_rate": 0.51,
+      "forced": 1,
+      "forced_pct": 33.3,
+      "goal_sessions": 0,
+      "hook_loads": 3,
+      "median_duration_min": 55.0,
+      "median_gap_s": 118.0,
+      "mined_loads": 4,
+      "no_progress_share_pct": null,
+      "papercut_filed": 0,
+      "papercut_fixed": 0,
+      "papercut_open": 0,
+      "redirect_interjections": 10,
+      "skill": "watch-the-drift",
+      "token_bearing_sessions": 3,
+      "top_interjection_reason": "clarification",
+      "trigger_decider": "rubric",
+      "trigger_f1": 0.72,
+      "trigger_precision": 0.78,
+      "trigger_recall": 0.55
+    },
+    {
+      "attributed_cache_read": 3534000.0,
+      "attributed_cache_write": 0.0,
+      "attributed_errors": 2.0,
+      "attributed_tokens_in": 820800.0,
+      "attributed_tokens_out": 319200.00000000006,
+      "attributed_tokens_total": 1140000.0,
+      "error_rate_per_session": 0.5,
+      "estimated_context_tax_tokens": 5900.0,
+      "eval_noise_band": 0.09,
+      "eval_pairs": 8,
+      "eval_pass_rate": 0.73,
+      "eval_win_rate": 0.72,
+      "forced": 0,
+      "forced_pct": 0.0,
+      "goal_sessions": 0,
+      "hook_loads": 4,
+      "median_duration_min": 27.0,
+      "median_gap_s": 64.0,
+      "mined_loads": 4,
+      "no_progress_share_pct": null,
+      "papercut_filed": 1,
+      "papercut_fixed": 1,
+      "papercut_open": 0,
+      "redirect_interjections": 10,
+      "skill": "name-the-boundary",
+      "token_bearing_sessions": 3,
+      "top_interjection_reason": "clarification",
+      "trigger_decider": "rubric",
+      "trigger_f1": 0.72,
+      "trigger_precision": 0.78,
+      "trigger_recall": 0.55
+    },
+    {
+      "attributed_cache_read": 2914000.0,
+      "attributed_cache_write": 0.0,
+      "attributed_errors": 9.0,
+      "attributed_tokens_in": 676800.0,
+      "attributed_tokens_out": 263200.0,
+      "attributed_tokens_total": 940000.0,
+      "error_rate_per_session": 3.0,
+      "estimated_context_tax_tokens": 16800.0,
+      "eval_noise_band": 0.15,
+      "eval_pairs": 10,
+      "eval_pass_rate": 0.653,
+      "eval_win_rate": 0.41,
+      "forced": 1,
+      "forced_pct": 50.0,
+      "goal_sessions": 0,
+      "hook_loads": 2,
+      "median_duration_min": 71.0,
+      "median_gap_s": 143.0,
+      "mined_loads": 3,
+      "no_progress_share_pct": null,
+      "papercut_filed": 1,
+      "papercut_fixed": 0,
+      "papercut_open": 1,
+      "redirect_interjections": 11,
+      "skill": "break-the-cycle",
+      "token_bearing_sessions": 2,
+      "top_interjection_reason": "approval",
+      "trigger_decider": "rubric",
+      "trigger_f1": 0.66,
+      "trigger_precision": 0.69,
+      "trigger_recall": 0.76
+    },
+    {
+      "attributed_cache_read": 2511000.0,
+      "attributed_cache_write": 0.0,
+      "attributed_errors": 1.0,
+      "attributed_tokens_in": 583200.0,
+      "attributed_tokens_out": 226800.00000000003,
+      "attributed_tokens_total": 810000.0,
+      "error_rate_per_session": 0.33,
+      "estimated_context_tax_tokens": 4700.0,
+      "eval_noise_band": 0.11,
+      "eval_pairs": 8,
+      "eval_pass_rate": 0.718,
+      "eval_win_rate": 0.67,
+      "forced": 0,
+      "forced_pct": 0.0,
+      "goal_sessions": 0,
+      "hook_loads": 3,
+      "median_duration_min": 24.0,
+      "median_gap_s": 58.0,
+      "mined_loads": 3,
+      "no_progress_share_pct": null,
+      "papercut_filed": 0,
+      "papercut_fixed": 0,
+      "papercut_open": 0,
+      "redirect_interjections": 11,
+      "skill": "score-the-run",
+      "token_bearing_sessions": 2,
+      "top_interjection_reason": "approval",
+      "trigger_decider": "rubric",
+      "trigger_f1": 0.66,
+      "trigger_precision": 0.69,
+      "trigger_recall": 0.76
+    },
+    {
+      "attributed_cache_read": 1612000.0,
+      "attributed_cache_write": 0.0,
+      "attributed_errors": 0.0,
+      "attributed_tokens_in": 374400.0,
+      "attributed_tokens_out": 145600.0,
+      "attributed_tokens_total": 520000.0,
+      "error_rate_per_session": 0.0,
+      "estimated_context_tax_tokens": 3600.0,
+      "eval_noise_band": 0.12,
+      "eval_pairs": 8,
+      "eval_pass_rate": 0.698,
+      "eval_win_rate": 0.59,
+      "forced": 0,
+      "forced_pct": 0.0,
+      "goal_sessions": 0,
+      "hook_loads": 1,
+      "median_duration_min": 19.0,
+      "median_gap_s": 91.0,
+      "mined_loads": 2,
+      "no_progress_share_pct": null,
+      "papercut_filed": 0,
+      "papercut_fixed": 0,
+      "papercut_open": 0,
+      "redirect_interjections": 11,
+      "skill": "close-the-loop",
+      "token_bearing_sessions": 1,
+      "top_interjection_reason": "clarification",
+      "trigger_decider": "rubric",
+      "trigger_f1": 0.6,
+      "trigger_precision": 0.6,
+      "trigger_recall": 0.69
+    },
+    {
+      "attributed_cache_read": 1426000.0,
+      "attributed_cache_write": 0.0,
+      "attributed_errors": 4.0,
+      "attributed_tokens_in": 331200.0,
+      "attributed_tokens_out": 128800.00000000001,
+      "attributed_tokens_total": 460000.0,
+      "error_rate_per_session": 2.0,
+      "estimated_context_tax_tokens": 8900.0,
+      "eval_noise_band": 0.14,
+      "eval_pairs": 8,
+      "eval_pass_rate": 0.665,
+      "eval_win_rate": 0.46,
+      "forced": 1,
+      "forced_pct": 50.0,
+      "goal_sessions": 0,
+      "hook_loads": 2,
+      "median_duration_min": 38.0,
+      "median_gap_s": 103.0,
+      "mined_loads": 2,
+      "no_progress_share_pct": null,
+      "papercut_filed": 0,
+      "papercut_fixed": 0,
+      "papercut_open": 0,
+      "redirect_interjections": 11,
+      "skill": "read-the-signal",
+      "token_bearing_sessions": 1,
+      "top_interjection_reason": "clarification",
+      "trigger_decider": "rubric",
+      "trigger_f1": 0.6,
+      "trigger_precision": 0.6,
+      "trigger_recall": 0.69
+    },
+    {
+      "attributed_cache_read": 651000.0,
+      "attributed_cache_write": 0.0,
+      "attributed_errors": 0.0,
+      "attributed_tokens_in": 151200.0,
+      "attributed_tokens_out": 58800.00000000001,
+      "attributed_tokens_total": 210000.0,
+      "error_rate_per_session": 0.0,
+      "estimated_context_tax_tokens": 2800.0,
+      "eval_noise_band": null,
+      "eval_pairs": null,
+      "eval_pass_rate": null,
+      "eval_win_rate": null,
+      "forced": 0,
+      "forced_pct": 0.0,
+      "goal_sessions": 0,
+      "hook_loads": 1,
+      "median_duration_min": 14.0,
+      "median_gap_s": 47.0,
+      "mined_loads": 1,
+      "no_progress_share_pct": null,
+      "papercut_filed": 0,
+      "papercut_fixed": 0,
+      "papercut_open": 0,
+      "redirect_interjections": 12,
+      "skill": "mark-the-gap",
+      "token_bearing_sessions": 1,
+      "top_interjection_reason": "approval",
+      "trigger_decider": "rubric",
+      "trigger_f1": 0.54,
+      "trigger_precision": 0.51,
+      "trigger_recall": 0.62
+    }
+  ],
+  "trigger_evals": {
+    "per_skill": {
+      "guard-the-contract": {
+        "rubric": {
+          "decider": "rubric",
+          "errors": 0,
+          "f1": 0.76,
+          "false_trigger_rate": 0.15,
+          "fn": 3,
+          "fp": 2,
+          "mode": "rubric",
+          "partial": false,
+          "precision": 0.8,
+          "recall": 0.73,
+          "recorded_at": "2026-02-14T10:00:00+00:00",
+          "tn": 11,
+          "tp": 8,
+          "trigger_rate": 0.42
+        }
+      },
+      "lock-the-interface": {
+        "rubric": {
+          "decider": "rubric",
+          "errors": 0,
+          "f1": 0.76,
+          "false_trigger_rate": 0.15,
+          "fn": 3,
+          "fp": 2,
+          "mode": "rubric",
+          "partial": false,
+          "precision": 0.8,
+          "recall": 0.73,
+          "recorded_at": "2026-02-14T10:00:00+00:00",
+          "tn": 11,
+          "tp": 8,
+          "trigger_rate": 0.42
+        }
+      },
+      "map-the-surface": {
+        "rubric": {
+          "decider": "rubric",
+          "errors": 0,
+          "f1": 0.76,
+          "false_trigger_rate": 0.15,
+          "fn": 3,
+          "fp": 2,
+          "mode": "rubric",
+          "partial": false,
+          "precision": 0.8,
+          "recall": 0.73,
+          "recorded_at": "2026-02-14T10:00:00+00:00",
+          "tn": 11,
+          "tp": 8,
+          "trigger_rate": 0.42
+        }
+      },
+      "prove-the-path": {
+        "rubric": {
+          "decider": "rubric",
+          "errors": 0,
+          "f1": 0.76,
+          "false_trigger_rate": 0.15,
+          "fn": 3,
+          "fp": 2,
+          "mode": "rubric",
+          "partial": false,
+          "precision": 0.8,
+          "recall": 0.73,
+          "recorded_at": "2026-02-14T10:00:00+00:00",
+          "tn": 11,
+          "tp": 8,
+          "trigger_rate": 0.42
+        }
+      },
+      "seed-the-fixture": {
+        "rubric": {
+          "decider": "rubric",
+          "errors": 0,
+          "f1": 0.76,
+          "false_trigger_rate": 0.15,
+          "fn": 3,
+          "fp": 2,
+          "mode": "rubric",
+          "partial": false,
+          "precision": 0.8,
+          "recall": 0.73,
+          "recorded_at": "2026-02-14T10:00:00+00:00",
+          "tn": 11,
+          "tp": 8,
+          "trigger_rate": 0.42
+        }
+      },
+      "ship-the-slice": {
+        "rubric": {
+          "decider": "rubric",
+          "errors": 0,
+          "f1": 0.76,
+          "false_trigger_rate": 0.15,
+          "fn": 3,
+          "fp": 2,
+          "mode": "rubric",
+          "partial": false,
+          "precision": 0.8,
+          "recall": 0.73,
+          "recorded_at": "2026-02-14T10:00:00+00:00",
+          "tn": 11,
+          "tp": 8,
+          "trigger_rate": 0.42
+        }
+      },
+      "split-the-work": {
+        "rubric": {
+          "decider": "rubric",
+          "errors": 0,
+          "f1": 0.76,
+          "false_trigger_rate": 0.15,
+          "fn": 3,
+          "fp": 2,
+          "mode": "rubric",
+          "partial": false,
+          "precision": 0.8,
+          "recall": 0.73,
+          "recorded_at": "2026-02-14T10:00:00+00:00",
+          "tn": 11,
+          "tp": 8,
+          "trigger_rate": 0.42
+        }
+      },
+      "trace-the-regression": {
+        "rubric": {
+          "decider": "rubric",
+          "errors": 0,
+          "f1": 0.76,
+          "false_trigger_rate": 0.15,
+          "fn": 3,
+          "fp": 2,
+          "mode": "rubric",
+          "partial": false,
+          "precision": 0.8,
+          "recall": 0.73,
+          "recorded_at": "2026-02-14T10:00:00+00:00",
+          "tn": 11,
+          "tp": 8,
+          "trigger_rate": 0.42
+        }
+      },
+      "trim-the-noise": {
+        "rubric": {
+          "decider": "rubric",
+          "errors": 0,
+          "f1": 0.76,
+          "false_trigger_rate": 0.15,
+          "fn": 3,
+          "fp": 2,
+          "mode": "rubric",
+          "partial": false,
+          "precision": 0.8,
+          "recall": 0.73,
+          "recorded_at": "2026-02-14T10:00:00+00:00",
+          "tn": 11,
+          "tp": 8,
+          "trigger_rate": 0.42
+        }
+      }
+    },
+    "skills_evaluated": 9
+  }
+}

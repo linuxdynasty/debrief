@@ -48,7 +48,7 @@ def _row(skill, ver, prev):
     return (
         f'<tr><td><code>{_e(skill)}</code></td><td>{_e(ver.get("harness") or "unknown")}</td>'
         f'<td title="{sha_title}"><code>{_e(ver.get("sha_short"))}</code></td>'
-        f'<td>{_e(str(ver.get("last_recorded_at") or "")[:10] or "—")}</td>'
+        f'<td class="date">{_e(str(ver.get("last_recorded_at") or "")[:10] or "—")}</td>'
         f'<td class="num">{_e(ver.get("runs"))}</td><td class="num">{_e(_win(ver))}</td>'
         f'<td class="num">{_e(pass_rate)}</td>'
         f'<td class="num">{_e(_signed(ver.get("tool_calls_delta"), "+.1f"))}</td>'
@@ -71,10 +71,10 @@ def render_skill_trends_card(agg):
         for _harness, vers in sorted(series.items()):
             start = max(0, len(vers) - SHOWN)
             rows += [_row(skill, v, vers[start + i - 1] if start + i else None) for i, v in enumerate(vers[start:])]
-    head = f'<div class="chart-card" style="margin:0 0 18px;overflow-x:auto"><div class="chart-title">{TITLE}</div>'
+    head = f'<div class="chart-card" style="overflow-x:auto"><div class="chart-title">{TITLE}</div>'
     if not rows:
         return head + (
-            '<div style="font-size:13px;color:#64748b">No ablation records yet. Run '
+            '<div style="color:var(--muted)">No ablation records yet. Run '
             "<code>replay-eval.sh report --history</code> after a replay to start a version history.</div></div>"
         )
     return (
@@ -88,7 +88,7 @@ def render_skill_trends_card(agg):
         '<th class="num" title="Mean with-skill minus stripped tokens, in / out">Tokens &Delta; in/out</th>'
         '<th title="Win-rate change vs the prior version on the same harness">vs Previous</th></tr></thead>'
         f'<tbody>{"".join(rows)}</tbody></table>'
-        '<div style="font-size:12px;color:#64748b;margin-top:8px">Each row is the newest run of one SKILL.md '
+        '<div class="chart-foot">Each row is the newest run of one SKILL.md '
         "version (never averaged); a win-rate change inside the noise band is not a signal. "
         f"Newest {SHOWN} versions per harness.</div></div>"
     )

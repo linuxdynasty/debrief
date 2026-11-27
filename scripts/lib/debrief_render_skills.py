@@ -130,12 +130,12 @@ def _render_flywheel_summary(agg):
         tiles.append((str(ev_cnt), "Eval-Covered Skills"))
 
     tile_html = "".join(
-        f'<div><div class="overlap-num" style="font-size:18px">{_e(val)}</div>'
+        f'<div><div class="overlap-num">{_e(val)}</div>'
         f'<div class="stat-label">{_e(lbl)}</div></div>'
         for val, lbl in tiles
     )
     return (
-        '<div class="chart-card" style="margin:0 0 18px">'
+        '<div class="chart-card">'
         '<div class="chart-title">Skill Quality Flywheel</div>'
         f'<div class="overlap-stats">{tile_html}</div>'
         '</div>'
@@ -202,7 +202,7 @@ def render_harness_skill_section(agg):
             f'<td class="num">{_e(evw)}</td></tr>'
         )
     scorecard_guide = (
-        '<details open class="col-guide">'
+        '<details class="col-guide note">'
         '<summary>How to read this scorecard</summary>'
         '<ul>'
         '<li><strong>Sessions Used</strong>: Chats that loaded this skill in transcripts (higher = more impact if you improve it).</li>'
@@ -218,9 +218,9 @@ def render_harness_skill_section(agg):
     return (
         '<h2 id="section-harnesses">Harnesses &amp; Skill Effectiveness</h2>'
         f'{_render_flywheel_summary(agg)}'
-        '<div class="chart-card" style="margin:0 0 18px">'
+        '<div class="chart-card">'
         '<div class="chart-title">Per-Harness Activity</div>'
-        '<table><thead><tr>'
+        '<div class="table-scroll"><table><thead><tr>'
         '<th>Harness</th>'
         '<th class="num" title="Main user chats / total chats including subagents">Sessions (Main / Total)</th>'
         '<th class="num" title="Sessions classified by semantic facets">Sessions Analyzed</th>'
@@ -229,23 +229,23 @@ def render_harness_skill_section(agg):
         '<th class="num" title="Tool calls that returned an error">Tool Errors</th>'
         '<th class="num" title="Input and output tokens attributed to sessions with skills">Tokens Used (In / Out)</th>'
         '</tr></thead>'
-        f'<tbody>{"".join(h_rows)}</tbody></table>'
-        f'<div style="font-size:12px;color:#64748b;margin-top:8px">{_e(harness_tok_foot)}</div></div>'
-        '<div class="chart-card" style="margin:0 0 18px;overflow-x:auto">'
+        f'<tbody>{"".join(h_rows)}</tbody></table></div>'
+        f'<details class="note"><summary>How to read</summary><p>{_e(harness_tok_foot)}</p></details></div>'
+        '<div class="chart-card" style="overflow-x:auto">'
         '<div class="chart-title">Top Skills (Flywheel Scorecard)</div>'
-        '<table><thead><tr>'
+        '<div class="table-scroll"><table><thead><tr>'
         '<th>Skill</th>'
         '<th class="num" title="Chats that loaded this skill in transcripts">Sessions Used</th>'
         '<th class="num" title="Loads captured by live hooks">Hook Loads</th>'
         '<th class="num" title="Percent of hook loads forced after a nudge block (lower is better)">Nudged %</th>'
         '<th class="num" title="Equal share of total session tokens">Total Tokens</th>'
-        '<th class="num" title="Estimated extra tokens spent keeping SKILL.md in context across turns">Skill Overhead (tok)</th>'
-        '<th class="num" title="Median wait between replies (s) / median session length (m)">Reply Gap / Session Len</th>'
-        '<th class="num" title="Attributed tool errors and average errors per session">Errors (Avg / Session)</th>'
-        '<th class="num" title="Open vs fixed papercut issues linked to this skill">Issues (Open / Fixed)</th>'
-        '<th class="num" title="Blind A/B with-skill win rate and A/A judge noise band">A/B Win Rate (&plusmn;Noise)</th>'
+        '<th class="num" title="Estimated extra tokens spent keeping SKILL.md in context across turns">Overhead (tok)</th>'
+        '<th class="num" title="Median wait between replies (s) / median session length (m)">Gap / Length</th>'
+        '<th class="num" title="Attributed tool errors and average errors per session">Errors (avg/sess)</th>'
+        '<th class="num" title="Open vs fixed papercut issues linked to this skill">Issues (O / F)</th>'
+        '<th class="num" title="Blind A/B with-skill win rate and A/A judge noise band">Win rate (&plusmn;noise)</th>'
         '</tr></thead>'
-        f'<tbody>{"".join(s_rows) or "<tr><td colspan=10>No skill loads in window.</td></tr>"}</tbody></table>'
+        f'<tbody>{"".join(s_rows) or "<tr><td colspan=10>No skill loads in window.</td></tr>"}</tbody></table></div>'
         f'{scorecard_guide}</div>'
     )
 

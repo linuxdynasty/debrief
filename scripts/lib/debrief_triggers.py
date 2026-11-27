@@ -123,13 +123,13 @@ def render_trigger_card(agg):
     notes = [DECIDER_NOTES["rubric"]] * ("rubric" in seen) + [DECIDER_NOTES["cmd"]] * ("cmd" in seen)
     notes += [DECIDER_NOTES["live"]] * bool(seen & {"claude", "agy", "muse", "codex", "opencode"})
     return (
-        '<div class="chart-card" style="margin:0 0 18px;overflow-x:auto">'
+        '<div class="chart-card" style="overflow-x:auto">'
         '<div class="chart-title">Trigger Precision / Recall</div>'
         '<table><thead><tr><th>Skill</th><th title="Which decider produced these numbers">Decider</th>'
         '<th class="num">Precision</th><th class="num">Recall</th><th class="num">F1</th>'
         '<th class="num" title="False positives / false negatives">FP / FN</th>'
         '<th class="num" title="Percent of hook loads forced after a nudge (live usage)">Nudged %</th></tr></thead>'
         f'<tbody>{body}</tbody></table>'
-        f'<div style="font-size:12px;color:#64748b;margin-top:8px">Scored from skill names and descriptions only. '
+        f'<div class="chart-foot">Scored from skill names and descriptions only. '
         f'{html.escape(" ".join(notes))} Lowest F1 first.</div></div>'
     )

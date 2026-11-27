@@ -1,0 +1,117 @@
+{
+  "agents_md_additions": [
+    {
+      "snippet": "Run the focused test file before claiming a change is complete.",
+      "target": "AGENTS.md",
+      "why": "Retried shell commands were the largest single error source."
+    },
+    {
+      "snippet": "Search for a path before opening it; the layout changed this month.",
+      "target": "AGENTS.md",
+      "why": "Twelve failed reads came from paths that had moved."
+    }
+  ],
+  "at_a_glance": {
+    "ambitious": "Run one task in two harnesses and score both against the same rubric.",
+    "hindering": "Retried shell commands and stale edit targets still cost more turns than any design decision.",
+    "quick_wins": "Give the two busiest skills a copy-pasteable verification command.",
+    "working": "Four repositories moved forward without a rollback, and the two slow suites finally run in one command."
+  },
+  "big_wins": [
+    {
+      "description": "The atlas-relay session wrote the backoff policy and its tests without a second design pass.",
+      "title": "Retry policy landed in one pass"
+    },
+    {
+      "description": "quarry-cli shipped a guard that rejects the exact mismatch that broke three earlier sessions.",
+      "title": "Schema guard closed the loop"
+    },
+    {
+      "description": "The docs session produced a guide that needed edits, not restructure.",
+      "title": "Migration guide survived review"
+    }
+  ],
+  "features_to_try": [
+    {
+      "example": "Split this refactor into two independent workstreams and report the files each one touched.",
+      "oneliner": "Give two harnesses one workstream each and compare the debriefs.",
+      "title": "Parallel harness split",
+      "why": "You already run three harnesses; the split makes the comparison cheap."
+    }
+  ],
+  "friction_categories": [
+    {
+      "description": "Agents opened paths from an older layout and paid a failed read for each one.",
+      "examples": [
+        "[demo-a1] read src/relay/queue.py after the module moved to src/relay/pipeline/queue.py"
+      ],
+      "remediation": "Keep the directory map in AGENTS.md current, and tell agents to search before opening a guessed path.",
+      "title": "Blind path guesses after a move (12 occurrences)"
+    },
+    {
+      "description": "Edits failed because the target lines had changed since the agent last read them.",
+      "examples": [
+        "[demo-b2] edit failed on a function that had been renamed two turns earlier"
+      ],
+      "remediation": "Read the exact target lines immediately before editing, and never edit from a cached snippet.",
+      "title": "Stale edit targets (9 occurrences)"
+    }
+  ],
+  "horizon_intro": "Two workflows are worth trying once the current migration settles.",
+  "horizon_workflows": [
+    {
+      "possible": "Score the same task in two harnesses against one rubric.",
+      "prompt": "Run this failing test in both harnesses and report the minimal diff each one needed.",
+      "tip": "Start with a single failing test and one shared repository.",
+      "title": "Cross-harness replay"
+    },
+    {
+      "possible": "Keep the schema invariant list in a file the agent must re-read after compaction.",
+      "prompt": "Write the current schema invariants to invariants.md, then re-read that file before every edit in this session.",
+      "tip": "Write the list once by hand, then let the skill maintain it.",
+      "title": "Invariant file"
+    }
+  ],
+  "key_insight": "Work concentrates in two repositories, and the tool-error count follows command retries rather than scope changes.",
+  "narrative_paragraphs": [
+    "Half the window was one repository at a time, with short supervised loops and a test run between turns.",
+    "The four long threads all crossed a refactor boundary. Their error counts came from retried shell commands after a moved path, not from scope changes."
+  ],
+  "project_areas": [
+    {
+      "description": "Relay transport, retry policy, and the fixture harness.",
+      "name": "atlas-relay",
+      "sessions_label": "29 sessions"
+    },
+    {
+      "description": "Command surface, argument parsing, and the schema guard.",
+      "name": "quarry-cli",
+      "sessions_label": "15 sessions"
+    },
+    {
+      "description": "Alert routing and the digest writer.",
+      "name": "signal-desk",
+      "sessions_label": "10 sessions"
+    },
+    {
+      "description": "Reference pages and the migration guide.",
+      "name": "atlas-relay-docs",
+      "sessions_label": "8 sessions"
+    }
+  ],
+  "usage_patterns": [
+    {
+      "detail": "You check output between turns instead of delegating a long unattended run.",
+      "prompt": "Plan the next three edits, then wait for approval before applying them.",
+      "summary": "Most sessions stay under ten prompts.",
+      "title": "Short supervised loops"
+    },
+    {
+      "detail": "Failures surface in seconds, and the full suite runs once at the end.",
+      "prompt": "Run the focused test for the file you are about to change, then propose the edit.",
+      "summary": "The successful sessions ran one focused test before the full suite.",
+      "title": "Test first, then widen"
+    }
+  ],
+  "wins_intro": "The window produced two finished slices and one migration guide that did not need a rewrite."
+}

@@ -305,15 +305,16 @@ def render_changepoint_card(agg):
     hooks = cp.get("hooks")
     if not skills and not hooks:
         return ""
+    # Verdicts are mono uppercase text with a colour, never a filled pill.
     badges = {
-        "improved": ("IMPROVED", "#dcfce7", "#166534"),
-        "awaiting_data": ("AWAITING DATA", "#e0f2fe", "#075985"),
-        "unchanged": ("UNCHANGED", "#fef3c7", "#92400e"),
-        "regressed": ("REGRESSED", "#fee2e2", "#991b1b"),
+        "improved": ("IMPROVED", "var(--evidence-ink)"),
+        "awaiting_data": ("AWAITING DATA", "var(--muted)"),
+        "unchanged": ("UNCHANGED", "var(--direction)"),
+        "regressed": ("REGRESSED", "var(--adverse-ink)"),
     }
     rows = []
     if hooks:
-        lbl, bg, fg = badges.get(hooks["verdict"], (hooks["verdict"].upper(), "#f1f5f9", "#334155"))
+        lbl, fg = badges.get(hooks["verdict"], (hooks["verdict"].upper(), "var(--ink)"))
         sha = hooks.get("edited_sha") or "mtime"
         dt = str(hooks.get("edited_at") or "")[:10]
         pre_blk = hooks["pre"]["hook_blocked_per_session"]
@@ -323,12 +324,12 @@ def render_changepoint_card(agg):
         rows.append(
             f'<tr><td><strong>hooks/</strong></td>'
             f'<td><code>{_e(sha)}</code> ({_e(dt)})</td>'
-            f'<td style="font-family:monospace;font-size:12px">{pre_s}</td>'
-            f'<td style="font-family:monospace;font-size:12px">{post_s}</td>'
-            f'<td><span style="padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700;background:{bg};color:{fg}">{_e(lbl)}</span></td></tr>'
+            f'<td style="font-family:monospace;">{pre_s}</td>'
+            f'<td style="font-family:monospace;">{post_s}</td>'
+            f'<td><span class="verdict" style="color:{fg}">{_e(lbl)}</span></td></tr>'
         )
     for sk, info in sorted(skills.items()):
-        lbl, bg, fg = badges.get(info["verdict"], (info["verdict"].upper(), "#f1f5f9", "#334155"))
+        lbl, fg = badges.get(info["verdict"], (info["verdict"].upper(), "var(--ink)"))
         sha = info.get("edited_sha") or "mtime"
         dt = str(info.get("edited_at") or "")[:10]
         pr, po = info["pre"], info["post"]
@@ -337,14 +338,14 @@ def render_changepoint_card(agg):
         rows.append(
             f'<tr><td><strong>{_e(sk)}</strong></td>'
             f'<td><code>{_e(sha)}</code> ({_e(dt)})</td>'
-            f'<td style="font-family:monospace;font-size:12px">{_e(pre_s)}</td>'
-            f'<td style="font-family:monospace;font-size:12px">{_e(post_s)}</td>'
-            f'<td><span style="padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700;background:{bg};color:{fg}">{_e(lbl)}</span></td></tr>'
+            f'<td style="font-family:monospace;">{_e(pre_s)}</td>'
+            f'<td style="font-family:monospace;">{_e(post_s)}</td>'
+            f'<td><span class="verdict" style="color:{fg}">{_e(lbl)}</span></td></tr>'
         )
     return (
-        '<div class="chart-card" id="section-changepoints" style="margin:20px 0">'
+        '<div class="chart-card" id="section-changepoints">'
         '<div class="chart-title">Post-Edit Impact (Since Last Skill &amp; Hook Change)</div>'
-        '<div style="font-size:12px;color:#64748b;margin:-4px 0 10px">'
+        '<div style="color:var(--muted);margin:0 0 var(--s3)">'
         'Recommendations evaluate post-edit sessions only so pre-fix history does not trigger stale MODIFY nags.'
         '</div>'
         '<table class="skill-table" style="width:100%">'

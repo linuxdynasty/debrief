@@ -232,11 +232,12 @@ def render_coaching_playbook_card(agg):
                 f'<div class="coach-ev">{_e(it.get("evidence"))}</div>'
                 f'<div class="coach-act"><strong>Next step:</strong> {_e(it.get("action"))}</div></div>'
             )
-        body = "\n".join(cards) or '<div class="subtitle" style="margin:0">No major issues flagged in this window.</div>'
-        return f'<div class="chart-card"><div class="chart-title">{_e(heading)}</div><div style="font-size:12px;color:#64748b;margin:-6px 0 10px">{_e(sub)}</div>{body}</div>'
+        body = "\n".join(cards) or '<div class="card-hint">No major issues flagged in this window.</div>'
+        hint = f'<details class="note"><summary>How to read</summary><p>{_e(sub)}</p></details>' if sub else ''
+        return f'<div class="chart-card"><div class="chart-title">{_e(heading)}</div>{body}{hint}</div>'
 
     return (
-        '<h2 id="section-coaching">Coaching Playbook: How You &amp; Your Agents Can Improve</h2>'
+        '<div class="chart-title">How You &amp; Your Agents Can Improve</div>'
         '<div class="charts-row">'
         + _col(fy, "coach-user", "For You (Habits & Prompting)", "Changes in how you start, pace, and split chats that immediately save time and tokens.")
         + _col(fa, "coach-agent", "For Your Agents (Skills, Rules & Hooks)", "Changes in skills, AGENTS.md, and hooks that cut errors and stop agents from drifting.")
@@ -252,7 +253,7 @@ def render_session_health_section(agg):
 
     def _mini_bars(data, color, left_col, right_col):
         if not data or not any(safe_int(v, 0) > 0 for v in data.values()):
-            return '<div class="subtitle" style="margin:0">No observations in this window.</div>'
+            return '<div class="card-hint">No observations in this window.</div>'
         mx = max(safe_int(v, 0) for v in data.values()) or 1
         out = [f'<div class="bar-head"><span>{_e(left_col)}</span><span>{_e(right_col)}</span></div>']
         for k, v in data.items():
@@ -269,10 +270,10 @@ def render_session_health_section(agg):
     stack_card = (
         '<div class="chart-card">'
         '<div class="chart-title">Context Bloat (Skills Stacked Per Chat)</div>'
-        '<div style="font-size:12px;color:#64748b;margin:-6px 0 10px">'
-        'Loading 1-2 focused skills is ideal; stacking 6+ skills in one long chat inflates every turn and weakens instruction following.'
-        '</div>'
-        + _mini_bars(h.get("skill_stacking"), "#8b5cf6", "Skills loaded in one chat", "Sessions")
+        + _mini_bars(h.get("skill_stacking"), "var(--evidence)", "Skills loaded in one chat", "Sessions")
+        + '<details class="note"><summary>How to read</summary><p>'
+        'One or two focused skills is ideal. Stacking six or more in one long chat inflates every turn and weakens instruction following.'
+        '</p></details>'
         + '</div>'
     )
 
@@ -295,11 +296,11 @@ def render_session_health_section(agg):
     model_card = (
         '<div class="chart-card">'
         '<div class="chart-title">Model Mix &amp; Prompt Cache Health</div>'
-        '<div style="font-size:12px;color:#64748b;margin:-6px 0 10px">'
-        'Which models ran the most turns and how much input came from warm prompt caches vs fresh re-writes.'
-        '</div>'
-        + _mini_bars(h.get("models"), "#0d9488", "Model", "Turns")
+        + _mini_bars(h.get("models"), "var(--evidence-ink)", "Model", "Turns")
         + cache_tbl
+        + '<details class="note"><summary>How to read</summary><p>'
+        'Which models ran the most turns, and how much input came from warm prompt caches rather than fresh rewrites.'
+        '</p></details>'
         + '</div>'
     )
 
@@ -318,11 +319,8 @@ def render_session_health_section(agg):
             f'<td>{_e(flags)}</td></tr>'
         )
     outlier_card = (
-        '<div class="chart-card" style="margin:20px 0;overflow-x:auto">'
+        '<div class="chart-card" style="overflow-x:auto">'
         '<div class="chart-title">Runaway &amp; High-Friction Threads (Top Outliers)</div>'
-        '<div style="font-size:12px;color:#64748b;margin:-6px 0 10px">'
-        'Your heaviest chats by token burn, stacked skills, or error loops — prime candidates to inspect or split next time.'
-        '</div>'
         '<table><thead><tr>'
         '<th>Session</th><th>Harness</th><th>Repository</th>'
         '<th class="num">Tokens</th><th class="num">Duration</th><th class="num">Prompts</th>'
