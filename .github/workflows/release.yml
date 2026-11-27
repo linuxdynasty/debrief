@@ -20,12 +20,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      - name: Check for substantive changes since last published release
+        id: changes
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curr_tag="${GITHUB_REF_NAME}"
+          prev_tag="$(gh release list --exclude-drafts --limit 10 --json tagName \
+            --jq "[.[] | select(.tagName != \"${curr_tag}\")][0].tagName // \"\"")"
+          if [ -n "${prev_tag}" ] && git rev-parse -q --verify "refs/tags/${prev_tag}" >/dev/null; then
+            res="$(node scripts/check-release-changes.mjs --base "${prev_tag}" --head HEAD)"
+          else
+            res="$(node scripts/check-release-changes.mjs --head HEAD)"
+          fi
+          echo "${res}"
+          substantive="$(node -e 'console.log(JSON.parse(process.argv[1]).substantive ? "true" : "false")' "${res}")"
+          echo "substantive=${substantive}" >> "${GITHUB_OUTPUT}"
+          if [ "${substantive}" != "true" ]; then
+            echo "::notice::Skipping npm publish and GitHub Release for ${curr_tag}: only markdown docs, images, CI files, or version metadata changed since ${prev_tag}."
+          fi
 
       - name: Verify version parity across tag, package.json, and plugin.json
         env:
@@ -124,18 +148,23 @@ jobs:
           fi
 
       - name: Publish to npm (when NPM_TOKEN or OIDC NPM_PUBLISH=true is configured)
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && steps.changes.outputs.substantive == 'true'
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_PUBLISH_OIDC: ${{ vars.NPM_PUBLISH }}
         run: |
           set -euo pipefail
           if [ -n "${NPM_TOKEN}" ]; then
+            npm_ver="$(npm --version)"
+            if ! node -e 'const [a,b,c]=process.argv[1].split(".").map(Number); process.exit((a>11||(a===11&&b>=15))?0:1)' "${npm_ver}"; then
+              npm install -g "npm@>=11.15.0"
+            fi
             npmrc="$(mktemp)"
             trap 'rm -f "${npmrc}"' EXIT
             chmod 600 "${npmrc}"
             printf '//registry.npmjs.org/:_authToken=%s\n' "${NPM_TOKEN}" > "${npmrc}"
-            NPM_CONFIG_USERCONFIG="${npmrc}" npm publish "${TGZ_PATH}" --access public --provenance
+            NPM_CONFIG_USERCONFIG="${npmrc}" npm stage publish "${TGZ_PATH}" --access public --provenance
+            echo "::notice::Staged ${TGZ_NAME} on npm with GitHub Actions provenance. Approve via 'npm stage approve' or npmjs.com."
           elif [ "${NPM_PUBLISH_OIDC}" = "true" ]; then
             unset NODE_AUTH_TOKEN NPM_TOKEN NPM_CONFIG_USERCONFIG
             npm_ver="$(npm --version)"
@@ -148,7 +177,7 @@ jobs:
           fi
 
       - name: Create GitHub Release
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && steps.changes.outputs.substantive == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -160,7 +189,7 @@ jobs:
           ## Install
 
           \`\`\`bash
-          # Universal npx installer (Claude Code, Codex, OpenCode, Antigravity, Muse, Cursor)
+          # Universal npx installer (Claude Code, Codex, OpenCode, Antigravity, Muse, Pi, Cursor)
           npx -y github:linuxdynasty/debrief#${tag} install --with-hooks
 
           # Or via npm (once published)
