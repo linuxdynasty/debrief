@@ -112,11 +112,59 @@ debrief aggregate --days 30 --harness all --repo "$PWD" \
 # Standalone diff between any two snapshots or snapshot vs aggregate
 debrief diff --prev snap-a.json --curr /tmp/agg.json
 
-# Stage 4: render offline interactive HTML report (+ save baseline snapshot)
+# Stage 4: render offline interactive HTML report + human-legible CLI summary
 debrief render --aggregate /tmp/agg.json --synthesis /tmp/synthesis.json
+# (pass --json for compact path JSON, or reprint the summary anytime:)
+debrief summary --aggregate /tmp/agg.json --synthesis /tmp/synthesis.json
 ```
 
 Reports and snapshots are written under `$DEBRIEF_DATA_DIR/debrief-reports/` (default `~/.local/share/debrief/debrief-reports/`).
+
+---
+
+## Example Report & CLI Output
+
+See a real sanitized multi-harness report generated from open-source [Eshu](https://github.com/eshu-hq/eshu) sessions across all 5 harnesses: **[`examples/eshu-sample-report.html`](examples/eshu-sample-report.html)** (download and open locally in any browser — 100% offline, zero external requests).
+
+### Terminal Summary (`debrief render` / `debrief summary`)
+```text
+========================================================================
+DEBRIEF SUMMARY  (since 2026-10-28)
+========================================================================
+  Report   : ~/.local/share/debrief/debrief-reports/report-2026-11-27-141200.html
+  Latest   : ~/.local/share/debrief/debrief-reports/report-latest.html
+  Snapshot : ~/.local/share/debrief/debrief-reports/snapshots/snap-20261127-141200.json
+
+COVERAGE
+  Sessions : 3,206 total (923 top-level) | 228 facets | 31 active day(s)
+  Harnesses: muse=1795, claude=1240, agy=86, opencode=83, codex=2
+  Activity : 4,420 prompts | 184.1k tool calls | 5,474 errors | cache hit 97.8%
+
+TRAJECTORY RADAR (0-100%, higher = better)
+  Outcome Quality   :  79%          | Trigger Precision :  77%
+  Reliability       :  54%          | Goal Alignment    :  83%
+  Token Efficiency  :  87%          | Cache Efficiency  :  98%
+
+POST-EDIT IMPACT (Git Change-Points)
+  Skills   : 22 edited in window (1 improved, 21 awaiting data, 0 unchanged, 0 regressed)
+    - diagnostic-rigor (0c21179) [improved]: 6.66 -> 0.67 errors/session
+  Hooks    : 052d923 — awaiting_data
+
+PARETO FRONT & DIFF ACCOUNTABILITY
+  Pareto    : 2 strata | 23 dominated | HEAD regressions: 0 | HV=0.4933
+========================================================================
+```
+
+### Interactive Offline HTML Report Previews
+
+**Overview, At a Glance, KPIs & Post-Edit Impact**
+![Report Overview and Post-Edit Impact](docs/images/report-overview.png)
+
+**6-Axis Operational Trajectory Radar & Two-Sided Coaching Playbook**
+![Operational Trajectory Radar and Coaching Playbook](docs/images/report-radar-changepoints.png)
+
+**Multi-Objective Pareto Front (Quality vs. Overhead vs. Friction)**
+![Multi-Objective Pareto Front](docs/images/report-pareto-skills.png)
 
 ---
 

@@ -18,6 +18,7 @@ const PIPELINE_CMDS = new Set([
   "aggregate",
   "diff",
   "render",
+  "summary",
 ]);
 
 function readVersion() {
@@ -46,7 +47,8 @@ Pipeline commands:
   debrief cache-write [opts]     Validate & store Stage 2 facet JSON records
   debrief aggregate [opts]       Merge sessions, hooks, git change-points, Pareto fronts & diff
   debrief diff [opts]            Compare two snapshots or snapshot vs aggregate
-  debrief render [opts]          Render offline interactive HTML report (+ save snapshot)
+  debrief render [opts]          Render offline interactive HTML report + human-legible summary (--json for paths)
+  debrief summary [opts]         Print a human-legible terminal summary from aggregate (+ synthesis) JSON
 
 Install options:
   --harness <list|all>           Harnesses: claude, codex, opencode, agy, muse, cursor (default: auto-detect)

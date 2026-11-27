@@ -316,11 +316,15 @@ def render_changepoint_card(agg):
         lbl, bg, fg = badges.get(hooks["verdict"], (hooks["verdict"].upper(), "#f1f5f9", "#334155"))
         sha = hooks.get("edited_sha") or "mtime"
         dt = str(hooks.get("edited_at") or "")[:10]
+        pre_blk = hooks["pre"]["hook_blocked_per_session"]
+        post_blk = hooks["post"]["hook_blocked_per_session"]
+        pre_s = f'{hooks["pre"]["sessions"]} sess, {pre_blk} blk/s' if pre_blk is not None else f'{hooks["pre"]["sessions"]} sess'
+        post_s = f'{hooks["post"]["sessions"]} sess, {post_blk} blk/s' if post_blk is not None else f'{hooks["post"]["sessions"]} sess (none yet)'
         rows.append(
             f'<tr><td><strong>hooks/</strong></td>'
             f'<td><code>{_e(sha)}</code> ({_e(dt)})</td>'
-            f'<td style="font-family:monospace;font-size:12px">{hooks["pre"]["sessions"]} sess, {hooks["pre"]["hook_blocked_per_session"]} blk/s</td>'
-            f'<td style="font-family:monospace;font-size:12px">{hooks["post"]["sessions"]} sess, {hooks["post"]["hook_blocked_per_session"]} blk/s</td>'
+            f'<td style="font-family:monospace;font-size:12px">{pre_s}</td>'
+            f'<td style="font-family:monospace;font-size:12px">{post_s}</td>'
             f'<td><span style="padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700;background:{bg};color:{fg}">{_e(lbl)}</span></td></tr>'
         )
     for sk, info in sorted(skills.items()):

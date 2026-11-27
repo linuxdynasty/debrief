@@ -146,16 +146,19 @@ assert d["accountability_counts"]["not_done"] == 1
 PY
 echo "ok - standalone debrief.sh diff reproduces exact accountability counts"
 
-# 4. Render HTML includes overlaid Radar SVG (dashed previous + filled current) and Accountability table
+# 4. Render HTML includes overlaid Radar SVG (dashed previous + filled current) and Accountability table,
+#    and default terminal summary displays radar deltas (pp) + accountability counts.
 HTML2="${TMP}/report2.html"
-bash "${DEBRIEF}" render --aggregate "${AGG2}" --synthesis "${SYN}" --out "${HTML2}" --no-snapshot >/dev/null
+SUM2="$(bash "${DEBRIEF}" render --aggregate "${AGG2}" --synthesis "${SYN}" --out "${HTML2}" --no-snapshot)"
+grep -qE '\([+-][0-9]+pp\)' <<<"${SUM2}"
+grep -q 'Prior Recs: 1 verified | 1 ineffective' <<<"${SUM2}"
 grep -q 'Operational Trajectory Radar' "${HTML2}"
 grep -q 'stroke-dasharray="5,4"' "${HTML2}"
 grep -q 'DONE + VERIFIED' "${HTML2}"
 grep -q 'DONE + NO EFFECT' "${HTML2}"
 grep -q 'NOT DONE' "${HTML2}"
 grep -q 'Trajectory: Expanded' "${HTML2}"
-echo "ok - rendered HTML displays overlaid Trajectory Radar SVG and Accountability badges"
+echo "ok - rendered HTML and CLI summary display overlaid Trajectory Radar deltas and Accountability badges"
 
 # 5. Invalid --compare file exits 2
 set +e
