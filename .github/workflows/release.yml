@@ -1,0 +1,152 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to validate/pack (e.g. v0.1.0; dry-run without publishing)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify version parity across tag, package.json, and plugin.json
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME}"
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ] && [ -n "${INPUT_TAG}" ]; then
+            tag="${INPUT_TAG}"
+          fi
+          pkg_ver="$(node -p "require('./package.json').version")"
+          plugin_ver="$(node -p "require('./.claude-plugin/plugin.json').version")"
+          if [ "${pkg_ver}" != "${plugin_ver}" ]; then
+            echo "version mismatch: package.json=${pkg_ver} vs .claude-plugin/plugin.json=${plugin_ver}" >&2
+            exit 1
+          fi
+          if [ "${GITHUB_EVENT_NAME}" = "push" ] || [ -n "${INPUT_TAG}" ]; then
+            expected="v${pkg_ver}"
+            if [ "${tag}" != "${expected}" ]; then
+              echo "tag mismatch: tag=${tag} expected=${expected} (from package.json)" >&2
+              exit 1
+            fi
+          fi
+          echo "version parity ok: v${pkg_ver}"
+
+      - name: ShellCheck
+        run: |
+          shellcheck -S warning install.sh scripts/debrief.sh scripts/run-tests.sh \
+            hooks/*.sh hooks/lib/*.sh hooks/agy/*.sh hooks/codex/*.sh hooks/muse/*.sh \
+            scripts/tests/*.sh
+
+      - name: Run full test suite
+        run: npm test
+
+      - name: Pack, smoke-test, and checksum tarball
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          tgz="$(npm pack --pack-destination dist | tail -n 1)"
+          echo "TGZ_PATH=dist/${tgz}" >> "${GITHUB_ENV}"
+          echo "TGZ_NAME=${tgz}" >> "${GITHUB_ENV}"
+
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "${tmp}"' EXIT
+          tar -xzf "dist/${tgz}" -C "${tmp}"
+          pkg="${tmp}/package"
+          required=(
+            ".claude-plugin/marketplace.json"
+            ".claude-plugin/plugin.json"
+            "bin/debrief.mjs"
+            "lib/installer.mjs"
+            "scripts/debrief.sh"
+            "scripts/lib/debrief_pipeline.py"
+            "scripts/lib/debrief_render.py"
+            "skills/debrief/SKILL.md"
+            "hooks/hooks.json"
+            "hooks/lib/telemetry-events.sh"
+            "hooks/skill-loaded.sh"
+            "hooks/stop-failure.sh"
+            "hooks/codex/skill-loaded.sh"
+            "hooks/agy/skill-loaded.sh"
+            "hooks/muse/hooks.json"
+            "hooks/opencode/debrief-telemetry.js"
+            "install.sh"
+          )
+          for f in "${required[@]}"; do
+            test -f "${pkg}/${f}" || { echo "missing required file in npm tarball: ${f}" >&2; exit 1; }
+          done
+          HOME="${tmp}/home" XDG_DATA_HOME="${tmp}/xdg-data" XDG_CONFIG_HOME="${tmp}/xdg-config" \
+            node "${pkg}/bin/debrief.mjs" install --all --with-hooks --copy
+          HOME="${tmp}/home" XDG_DATA_HOME="${tmp}/xdg-data" XDG_CONFIG_HOME="${tmp}/xdg-config" \
+            node "${pkg}/bin/debrief.mjs" doctor
+          HOME="${tmp}/home" XDG_DATA_HOME="${tmp}/xdg-data" XDG_CONFIG_HOME="${tmp}/xdg-config" \
+            node "${pkg}/bin/debrief.mjs" --version
+
+          (cd dist && sha256sum "${tgz}" > SHA256SUMS)
+          cat dist/SHA256SUMS
+
+      - name: Publish to npm (when NPM_TOKEN or OIDC NPM_PUBLISH=true is configured)
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_PUBLISH_OIDC: ${{ vars.NPM_PUBLISH }}
+        run: |
+          set -euo pipefail
+          if [ -n "${NODE_AUTH_TOKEN}" ] || [ "${NPM_PUBLISH_OIDC}" = "true" ]; then
+            npm publish "${TGZ_PATH}" --access public --provenance
+          else
+            echo "Skipping npm publish: set secrets.NPM_TOKEN or repo variable NPM_PUBLISH=true (for npm Trusted Publishing) to enable automatic npm publishing."
+          fi
+
+      - name: Create GitHub Release
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME}"
+          notes="$(mktemp)"
+          trap 'rm -f "${notes}"' EXIT
+          cat > "${notes}" <<EOF
+          ## Install
+
+          \`\`\`bash
+          # Universal npx installer (Claude Code, Codex, OpenCode, Antigravity, Muse, Cursor)
+          npx -y github:linuxdynasty/debrief#${tag} install --with-hooks
+
+          # Or via npm (once published)
+          npx -y @linuxdynasty/debrief@${tag#v} install --with-hooks
+
+          # Claude Code Plugin Marketplace
+          # /plugin marketplace add linuxdynasty/debrief
+          # /plugin install debrief@debrief
+          \`\`\`
+          EOF
+          if gh release view "${tag}" >/dev/null 2>&1; then
+            gh release upload "${tag}" "${TGZ_PATH}" dist/SHA256SUMS --clobber
+          else
+            gh release create "${tag}" "${TGZ_PATH}" dist/SHA256SUMS \
+              --title "debrief ${tag}" \
+              --generate-notes \
+              --notes-file "${notes}"
+          fi
