@@ -1,8 +1,8 @@
 {
   "name": "debrief",
   "displayName": "Debrief",
-  "version": "0.1.1",
-  "description": "Multi-harness operational debrief for Claude Code, Codex, OpenCode, Antigravity (agy), Muse, and Cursor — flexible scoping, report diff accountability, Trajectory Radar, Multi-Objective Pareto Fronts, and post-edit change-point attribution.",
+  "version": "0.1.2",
+  "description": "Multi-harness operational debrief for Claude Code, Codex, OpenCode, Antigravity (agy), Muse, and Cursor \u2014 flexible scoping, report diff accountability, Trajectory Radar, Multi-Objective Pareto Fronts, and post-edit change-point attribution.",
   "author": {
     "name": "Allen Sanabria",
     "url": "https://github.com/linuxdynasty"
@@ -22,6 +22,8 @@
     "pareto",
     "analytics"
   ],
-  "skills": ["./skills"],
+  "skills": [
+    "./skills"
+  ],
   "hooks": "./hooks/hooks.json"
 }
