@@ -91,7 +91,7 @@ if (!base) {
   process.exit(0);
 }
 
-const raw = git(["diff", "--name-only", `${base}..${head}`], cwd);
+const raw = git(["diff", "--no-renames", "--name-only", `${base}..${head}`], cwd);
 const files = raw ? raw.split(/\r?\n/).filter(Boolean) : [];
 const realChanges = [];
 const ignoredChanges = [];

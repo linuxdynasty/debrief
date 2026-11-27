@@ -69,4 +69,18 @@ assert d["realChanges"] == ["lib/installer.mjs"], d
 PY
 echo "ok - code change triggers a release"
 
-echo "PASS test-release-guard: 3 checks green"
+# 4. Renaming a shipped file (skills/ -> docs/) still triggers a release via the deleted side.
+git -C "${work}" tag v0.1.2
+git -C "${work}" mv skills/debrief/SKILL.md docs/retired-skill.md
+git -C "${work}" commit -q -m "move skill to docs"
+out4="$(node "${CHECKER}" --cwd "${work}" --base v0.1.2 --head HEAD)"
+python3 -B - "${out4}" <<'PY'
+import json, sys
+d = json.loads(sys.argv[1])
+assert d["substantive"] is True, d
+assert "skills/debrief/SKILL.md" in d["realChanges"], d
+assert "docs/retired-skill.md" in d["ignoredChanges"], d
+PY
+echo "ok - moving a shipped file to docs/ still triggers a release"
+
+echo "PASS test-release-guard: 4 checks green"
