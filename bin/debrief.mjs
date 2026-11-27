@@ -51,8 +51,8 @@ Pipeline commands:
   debrief summary [opts]         Print a human-legible terminal summary from aggregate (+ synthesis) JSON
 
 Install options:
-  --harness <list|all>           Harnesses: claude, codex, opencode, agy, muse, cursor (default: auto-detect)
-  --all                          Install into all 6 supported harnesses
+  --harness <list|all>           Harnesses: claude, codex, opencode, agy, muse, cursor, pi (default: auto-detect)
+  --all                          Install into all 7 supported harnesses
   --with-hooks                   Also install lightweight content-free skill-load & stop-failure hooks
   --copy                         Stage runtime into ~/.local/share/debrief/runtime (auto-enabled under npx)
   --dry-run                      Preview changes without writing files
@@ -64,6 +64,17 @@ Examples:
   npx @linuxdynasty/debrief sessions --days 14 --limit 20
   npx @linuxdynasty/debrief aggregate --days 30 --compare-prev --out agg.json
 `);
+}
+
+function runInstaller(action) {
+  try {
+    return action();
+  } catch (err) {
+    const detail = err && typeof err.message === "string" ? err.message : String(err);
+    const code = err && typeof err.code === "string" ? ` (${err.code})` : "";
+    process.stderr.write(`debrief: install failed: ${detail}${code}\n`);
+    return 1;
+  }
 }
 
 function main() {
@@ -79,10 +90,10 @@ function main() {
     process.exit(0);
   }
   if (cmd === "install") {
-    process.exit(runInstall(PKG_ROOT, args.slice(1), { uninstall: false }));
+    process.exit(runInstaller(() => runInstall(PKG_ROOT, args.slice(1), { uninstall: false })));
   }
   if (cmd === "uninstall") {
-    process.exit(runInstall(PKG_ROOT, args.slice(1), { uninstall: true }));
+    process.exit(runInstaller(() => runInstall(PKG_ROOT, args.slice(1), { uninstall: true })));
   }
   if (cmd === "doctor") {
     process.exit(runDoctor(PKG_ROOT));

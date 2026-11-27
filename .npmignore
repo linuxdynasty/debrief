@@ -1,0 +1,9 @@
+# Compiled Python bytecode. .gitignore already excludes these, but npm reads
+# its own ignore file, so a developer who ran the module would otherwise ship
+# stale .pyc files from their machine.
+__pycache__/
+*.pyc
+*.pyo
+
+# Packed artifacts
+*.tgz

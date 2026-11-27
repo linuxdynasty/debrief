@@ -40,6 +40,7 @@ import debrief_extract_claude as EX_CLAUDE  # noqa: E402
 import debrief_extract_codex as EX_CODEX  # noqa: E402
 import debrief_extract_muse as EX_MUSE  # noqa: E402
 import debrief_extract_opencode as EX_OPENCODE  # noqa: E402
+import debrief_extract_pi as EX_PI  # noqa: E402
 
 
 def _load_or_extract(harness, path, mtime, cache_dir, agy_db_cache, opencode_db_cache=None):
@@ -56,6 +57,8 @@ def _load_or_extract(harness, path, mtime, cache_dir, agy_db_cache, opencode_db_
         cand_id = EX_CODEX.session_id_from_path(path)
     elif harness == "opencode":
         cand_id = EX_OPENCODE.session_id_from_ref(path)
+    elif harness == "pi":
+        cand_id = EX_PI.session_id_from_path(path)
 
     if cand_id:
         key = safe_key(harness, cand_id)
@@ -76,6 +79,8 @@ def _load_or_extract(harness, path, mtime, cache_dir, agy_db_cache, opencode_db_
         meta, dig = EX_CODEX.extract_session(path, mtime)
     elif harness == "opencode":
         meta, dig = EX_OPENCODE.extract_session(path, mtime, opencode_db_cache)
+    elif harness == "pi":
+        meta, dig = EX_PI.extract_session(path, mtime)
     else:
         meta, dig = EX_CLAUDE.extract_session(path, mtime)
 
@@ -114,6 +119,10 @@ def _discover_all(harnesses, since_epoch, roots_override=None):
         roots = valid_paths if valid_paths is not None else EX_OPENCODE.default_roots()
         for p, mt in EX_OPENCODE.discover(roots, since_epoch):
             items.append(("opencode", p, mt))
+    if "pi" in harnesses:
+        roots = valid_dirs if valid_dirs is not None else EX_PI.default_roots()
+        for p, mt in EX_PI.discover(roots, since_epoch):
+            items.append(("pi", p, mt))
     items.sort(key=lambda x: x[2], reverse=True)
     return items
 
@@ -405,7 +414,7 @@ def _add_scope_args(parser):
     parser.add_argument("--days", type=int, default=None)
     parser.add_argument("--all-time", action="store_true", help="Include all available sessions with no time cutoff")
     parser.add_argument("--project", default="")
-    parser.add_argument("--harness", default="", help="Comma-separated harnesses (muse,agy,claude,codex,opencode) or all")
+    parser.add_argument("--harness", default="", help="Comma-separated harnesses (muse,agy,claude,codex,opencode,pi) or all")
     parser.add_argument("--current", action="store_true", help="Scope to the active session (env var or CWD recency)")
     parser.add_argument("--current-cwd", default="", help="Workspace path override for --current fallback resolution")
     parser.add_argument("--session", action="append", default=[], help="Target session ID or prefix (repeatable, comma-separated, optional harness:id)")

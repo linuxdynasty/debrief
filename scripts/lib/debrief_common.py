@@ -317,7 +317,7 @@ def normalize_friction_key(raw):
     return k if k in VALID_FRICTION else "tool_failure"
 
 
-VALID_HARNESSES = ("muse", "agy", "claude", "codex", "opencode")
+VALID_HARNESSES = ("muse", "agy", "claude", "codex", "opencode", "pi")
 
 
 def validate_facet(raw):

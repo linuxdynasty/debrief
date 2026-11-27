@@ -1,6 +1,6 @@
 # debrief
 
-Multi-harness operational debrief for AI coding agents — **Claude Code**, **Codex**, **OpenCode**, **Antigravity (`agy`)**, **Muse**, and **Cursor**.
+Multi-harness operational debrief for AI coding agents — **Claude Code**, **Codex**, **OpenCode**, **Antigravity (`agy`)**, **Muse**, **Cursor**, and **Pi**.
 
 Mines local session transcripts, caches semantic facets, merges optional content-free hook telemetry and git history, and renders an offline interactive HTML report featuring:
 
@@ -24,7 +24,7 @@ In Claude Code:
 This installs the `/debrief` skill and optional lightweight content-free `PostToolUse` (`Skill`) and `StopFailure` telemetry hooks automatically.
 
 ### 2. Universal Installer via `npx` (all harnesses)
-Works with **Claude Code**, **Codex**, **OpenCode**, **Antigravity (`agy`)**, **Muse**, and **Cursor**:
+Works with **Claude Code**, **Codex**, **OpenCode**, **Antigravity (`agy`)**, **Muse**, **Cursor**, and **Pi**:
 
 ```bash
 # Auto-detect installed harnesses and install /debrief skill + lightweight telemetry hooks
@@ -33,7 +33,7 @@ npx @linuxdynasty/debrief install --with-hooks
 # Or directly from GitHub before npm publish:
 npx github:linuxdynasty/debrief install --with-hooks
 
-# Target specific harnesses or all 6:
+# Target specific harnesses or all 7:
 npx @linuxdynasty/debrief install --harness claude,codex,opencode --with-hooks
 npx @linuxdynasty/debrief install --all --with-hooks
 ```
@@ -77,6 +77,7 @@ debrief uninstall --all      # Remove debrief skills & hooks (preserves all othe
 | **Antigravity (`agy`)** | `~/.gemini/antigravity*/brain/**/transcript.jsonl` | `~/.gemini/config/skills/debrief` | Dedicated `"debrief"` block in `~/.gemini/config/hooks.json` |
 | **Muse** | `~/.local/share/muse/sessions/**/*.jsonl` | `~/.agents/skills/debrief` | Managed hooks file (never clobbers existing `managed_hooks_path`) |
 | **Cursor** | Skill install | `~/.cursor/skills/debrief` | Skill-only |
+| **Pi** | `~/.pi/agent/sessions/**/<timestamp>_<session-id>.jsonl` (root follows `sessionDir`, `PI_CODING_AGENT_SESSION_DIR`, then `~/.pi/agent/sessions`) | `~/.pi/agent/skills/debrief` | Global extension `~/.pi/agent/extensions/debrief-telemetry.ts` |
 
 Opt out of hook telemetry at any time with `DEBRIEF_TELEMETRY_OFF=1`.
 
@@ -84,9 +85,12 @@ Opt out of hook telemetry at any time with `DEBRIEF_TELEMETRY_OFF=1`.
 
 ## Usage
 
+Harness-specific guides live in [`docs/`](docs/): see
+[How to debrief your Pi sessions](docs/how-to-debrief-your-pi-sessions.md).
+
 ### Inside any harness
 Invoke `/debrief`:
-- `/debrief` — default 30-day debrief across all 5 harnesses
+- `/debrief` — default 30-day debrief across all 6 mining harnesses
 - `/debrief for the current session` — single-session Deep-Dive (`--current`)
 - `/debrief for codex and opencode all time` — `--harness codex,opencode --all-time`
 - `/debrief compare against previous report` — `--compare-prev` with overlaid Trajectory Radar + accountability
@@ -108,6 +112,10 @@ debrief cache-write facets-batch-01.json
 # Stage 3: aggregate across harnesses, hooks, git change-points, Pareto fronts & diff
 debrief aggregate --days 30 --harness all --repo "$PWD" \
   --skills-dir ~/.claude/skills --compare-prev --out /tmp/agg.json
+
+# `--transcript-root` is on `sessions` and `prepare`, not `aggregate`. If you
+# scoped extraction with --transcript-root, pass the prepare manifest's session
+# IDs to aggregate with --sessions-file (one ID per line).
 
 # Standalone diff between any two snapshots or snapshot vs aggregate
 debrief diff --prev snap-a.json --curr /tmp/agg.json

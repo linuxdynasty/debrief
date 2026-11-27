@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # install.sh — Universal installer for @linuxdynasty/debrief across all supported
-# harnesses (claude, codex, opencode, agy, muse, cursor).
+# harnesses (claude, codex, opencode, agy, muse, cursor, pi).
 #
 # Works both from a local checkout:
 #   ./install.sh [--all | --harness claude,codex,...] [--with-hooks] [--uninstall]
@@ -39,7 +39,7 @@ if command -v node >/dev/null 2>&1; then
 fi
 
 # Pure-bash fallback when Node < 18 or absent: install /debrief skill symlinks + ~/.local/bin/debrief.
-HARNESSES=(claude codex opencode agy muse cursor)
+HARNESSES=(claude codex opencode agy muse cursor pi)
 selected=()
 uninstall=0
 
@@ -51,6 +51,7 @@ skills_dir_for() {
 	agy) printf '%s\n' "${HOME}/.gemini/config/skills" ;;
 	muse) printf '%s\n' "${HOME}/.agents/skills" ;;
 	cursor) printf '%s\n' "${HOME}/.cursor/skills" ;;
+	pi) printf '%s\n' "${HOME}/.pi/agent/skills" ;;
 	*)
 		printf 'debrief: unknown harness: %s\n' "$1" >&2
 		return 1
@@ -74,7 +75,7 @@ while [ $# -gt 0 ]; do
 		exit 1
 		;;
 	-h | --help)
-		echo "Usage: ./install.sh [--all | --harness claude,codex,opencode,agy,muse,cursor] [--with-hooks] [--uninstall]"
+		echo "Usage: ./install.sh [--all | --harness claude,codex,opencode,agy,muse,cursor,pi] [--with-hooks] [--uninstall]"
 		exit 0
 		;;
 	*)
