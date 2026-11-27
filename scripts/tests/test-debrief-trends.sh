@@ -105,7 +105,7 @@ PYEOF
 # 3. Missing explicit path fails fast; bare flag with a missing default is zero records; bare reads the default.
 if agg "${work}/agg-miss.json" --eval-history "${work}/no-such-ledger.jsonl" 2>"${work}/err-miss.txt"; then
 	no "explicit missing --eval-history path fails fast"
-elif rg -q "no-such-ledger.jsonl.*not found" "${work}/err-miss.txt"; then
+elif grep -qE "no-such-ledger\.jsonl.*not found" "${work}/err-miss.txt"; then
 	ok "explicit missing --eval-history path fails fast"
 else
 	no "explicit missing --eval-history path fails fast"
