@@ -92,7 +92,9 @@ Friction, and Horizon sections contain text rather than empty placeholders.
 ## 4. Verify the telemetry extension loaded
 
 The extension writes to `skills-usage.jsonl` when a skill is read inside Pi. It
-only runs after Pi starts, so restart Pi first.
+loads only after Pi starts or reloads, so run `/reload` inside Pi after
+installing debrief, then read a skill. A plain restart may not pick up the new
+extension, so prefer `/reload`.
 
 Read a skill inside Pi, then run:
 
