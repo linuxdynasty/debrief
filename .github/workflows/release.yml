@@ -65,7 +65,7 @@ jobs:
           set -euo pipefail
           mkdir -p dist
           tgz="$(npm pack --pack-destination dist | tail -n 1)"
-          echo "TGZ_PATH=dist/${tgz}" >> "${GITHUB_ENV}"
+          echo "TGZ_PATH=./dist/${tgz}" >> "${GITHUB_ENV}"
           echo "TGZ_NAME=${tgz}" >> "${GITHUB_ENV}"
 
           tmp="$(mktemp -d)"
