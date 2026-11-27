@@ -1,7 +1,7 @@
 {
   "name": "debrief",
   "displayName": "Debrief",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Multi-harness operational debrief for Claude Code, Codex, OpenCode, Antigravity (agy), Muse, and Cursor \u2014 flexible scoping, report diff accountability, Trajectory Radar, Multi-Objective Pareto Fronts, and post-edit change-point attribution.",
   "author": {
     "name": "Allen Sanabria",
