@@ -175,6 +175,7 @@ Browse the **[full 10-section screenshot walkthrough in `examples/README.md`](ex
 | Variable | Default | Purpose |
 |---|---|---|
 | `DEBRIEF_DATA_DIR` | `$XDG_DATA_HOME/debrief` | Root directory for cache, reports, snapshots, and `skills-usage.jsonl` |
+| `DEBRIEF_RUNTIME_DIR` | `$XDG_DATA_HOME/debrief/runtime` | Staged CLI/skill/hook runtime directory used by `install --copy` / `npx` (decoupled from `DEBRIEF_DATA_DIR`) |
 | `DEBRIEF_ALIASES_FILE` | *(none)* | Optional TSV (`alias<TAB>canonical`) for normalizing renamed skills |
 | `DEBRIEF_SKILLS_DIRS` | *(none)* | Colon-separated skill directories for overhead & change-point tracking |
 | `DEBRIEF_TELEMETRY_OFF` | `0` | Set to `1` to disable hook telemetry emission |
