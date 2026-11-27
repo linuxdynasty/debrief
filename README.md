@@ -157,14 +157,16 @@ PARETO FRONT & DIFF ACCOUNTABILITY
 
 ### Interactive Offline HTML Report Previews
 
-**Overview, At a Glance, KPIs & Post-Edit Impact**
-![Report Overview and Post-Edit Impact](docs/images/report-overview.png)
+Browse the **[full 10-section screenshot walkthrough in `examples/README.md`](examples/README.md)** or download [`examples/eshu-sample-report.html`](examples/eshu-sample-report.html) to explore every chart interactively offline.
 
-**6-Axis Operational Trajectory Radar & Two-Sided Coaching Playbook**
-![Operational Trajectory Radar and Coaching Playbook](docs/images/report-radar-changepoints.png)
+**Overview, At a Glance & KPI Strip**
+![Report Overview and At a Glance](examples/screenshots/01-overview-at-a-glance.png)
 
-**Multi-Objective Pareto Front (Quality vs. Overhead vs. Friction)**
-![Multi-Objective Pareto Front](docs/images/report-pareto-skills.png)
+**6-Axis Operational Trajectory Radar**
+![Operational Trajectory Radar](examples/screenshots/03-trajectory-radar.png)
+
+**Multi-Objective Pareto Front, Skill Actions & Cache Health**
+![Multi-Objective Pareto Front](examples/screenshots/08-pareto-front.png)
 
 ---
 
