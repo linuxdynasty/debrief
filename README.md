@@ -85,6 +85,9 @@ Opt out of hook telemetry at any time with `DEBRIEF_TELEMETRY_OFF=1`.
 
 ## Usage
 
+Harness-specific guides live in [`docs/`](docs/): see
+[How to debrief your Pi sessions](docs/how-to-debrief-your-pi-sessions.md).
+
 ### Inside any harness
 Invoke `/debrief`:
 - `/debrief` — default 30-day debrief across all 6 mining harnesses
@@ -109,6 +112,10 @@ debrief cache-write facets-batch-01.json
 # Stage 3: aggregate across harnesses, hooks, git change-points, Pareto fronts & diff
 debrief aggregate --days 30 --harness all --repo "$PWD" \
   --skills-dir ~/.claude/skills --compare-prev --out /tmp/agg.json
+
+# `--transcript-root` is on `sessions` and `prepare`, not `aggregate`. If you
+# scoped extraction with --transcript-root, pass the prepare manifest's session
+# IDs to aggregate with --sessions-file (one ID per line).
 
 # Standalone diff between any two snapshots or snapshot vs aggregate
 debrief diff --prev snap-a.json --curr /tmp/agg.json

@@ -77,6 +77,8 @@ $DEBRIEF aggregate --days 30 --repo "$PWD" --compare-prev --out "$WORK/aggregate
 ```
 
 Pass `--log` for extra telemetry logs, repeatable `--repo` / `--skills-dir` flags for active repos and skill trees, and the same scoping flags used in Step 1.
+
+`--transcript-root` is accepted by `sessions` and `prepare` but **not** by `aggregate`. If you used `--transcript-root` in Step 1, scope Step 3 by writing the prepare manifest's session IDs to a file and passing `--sessions-file PATH` (one ID per line), or use `--project` / `--harness` / `--all-time` if they isolate the same set.
 - **Report Diff & Accountability**: `--compare-prev` auto-matches the most recent saved snapshot for this scope (or `--compare SNAPSHOT.json`) to compute KPI deltas, overlaid 6-axis **Trajectory Radar** movement, Pareto hypervolume delta (`ΔHV`), and deterministic recommendation accountability (`implemented_verified`, `implemented_ineffective`, `implemented_pending_data`, `not_done` with `carry_over_count`, `resolved_externally`). Diff any two snapshots directly via `$DEBRIEF diff --prev A.json --curr B.json`.
 - **Git Change-Point Attribution**: automatically detects per-skill `SKILL.md` and `hooks/` last-edit commits, splitting each edited target into `pre` vs `post` sessions (`improved`, `awaiting_data`, `unchanged`, `regressed`) so pre-fix history does not trigger stale `MODIFY` nags. Pass `--ignore-changepoints` for raw unsplit history or `--since-last-edit` to filter sessions to post-change runs.
 - **Multi-Objective Pareto Fronts**: computed over effectiveness, overhead/load, and friction/load (plus per-`(skill, harness)` version fronts with `HEAD` regression alerts and hypervolume `HV` when `--evals` / `--eval-history` is supplied).
