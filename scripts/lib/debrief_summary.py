@@ -134,7 +134,8 @@ def format_terminal_summary(agg, syn=None, report_path=None, latest_path=None, s
 
     radar = agg.get("radar_profile") or {}
     axes = radar.get("axes") if isinstance(radar.get("axes"), dict) else {}
-    rdiff = (diff.get("radar_diff") or {}).get("deltas") or {}
+    rd_obj = diff.get("radar_diff") or {}
+    rdiff = rd_obj.get("axes") if isinstance(rd_obj.get("axes"), dict) else (rd_obj.get("deltas") or {})
     present_axes = [(k, lbl) for k, lbl in AXIS_SPEC if _axis_score(axes.get(k)) is not None]
     if present_axes:
         lines.append("")
