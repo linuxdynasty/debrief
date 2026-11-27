@@ -23,5 +23,39 @@ jobs:
             scripts/tests/*.sh
       - name: Run full test suite
         run: npm test
-      - name: Verify npm pack contents
-        run: npm pack --dry-run
+      - name: Verify packed npm tarball contents and CLI smoke test
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          trap 'rm -rf "${tmp}"' EXIT
+          tgz="$(npm pack --pack-destination "${tmp}" | tail -n 1)"
+          tar -xzf "${tmp}/${tgz}" -C "${tmp}"
+          pkg="${tmp}/package"
+          required=(
+            ".claude-plugin/marketplace.json"
+            ".claude-plugin/plugin.json"
+            "bin/debrief.mjs"
+            "lib/installer.mjs"
+            "scripts/debrief.sh"
+            "scripts/lib/debrief_pipeline.py"
+            "scripts/lib/debrief_render.py"
+            "skills/debrief/SKILL.md"
+            "hooks/hooks.json"
+            "hooks/lib/telemetry-events.sh"
+            "hooks/skill-loaded.sh"
+            "hooks/stop-failure.sh"
+            "hooks/codex/skill-loaded.sh"
+            "hooks/agy/skill-loaded.sh"
+            "hooks/muse/hooks.json"
+            "hooks/opencode/debrief-telemetry.js"
+            "install.sh"
+          )
+          for f in "${required[@]}"; do
+            test -f "${pkg}/${f}" || { echo "missing required file in npm tarball: ${f}" >&2; exit 1; }
+          done
+          HOME="${tmp}/home" XDG_DATA_HOME="${tmp}/xdg-data" XDG_CONFIG_HOME="${tmp}/xdg-config" \
+            node "${pkg}/bin/debrief.mjs" install --all --with-hooks --copy
+          HOME="${tmp}/home" XDG_DATA_HOME="${tmp}/xdg-data" XDG_CONFIG_HOME="${tmp}/xdg-config" \
+            node "${pkg}/bin/debrief.mjs" doctor
+          HOME="${tmp}/home" XDG_DATA_HOME="${tmp}/xdg-data" XDG_CONFIG_HOME="${tmp}/xdg-config" \
+            node "${pkg}/bin/debrief.mjs" --version
