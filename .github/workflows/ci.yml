@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: ShellCheck
+        run: |
+          shellcheck -S warning install.sh scripts/debrief.sh scripts/run-tests.sh \
+            hooks/*.sh hooks/lib/*.sh hooks/agy/*.sh hooks/codex/*.sh hooks/muse/*.sh \
+            scripts/tests/*.sh
+      - name: Run full test suite
+        run: npm test
+      - name: Verify npm pack contents
+        run: npm pack --dry-run
