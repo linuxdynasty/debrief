@@ -141,4 +141,25 @@ assert "other-suite" in ag and "debrief" not in ag
 PY
 echo "ok - uninstall --all cleanly removes debrief skills & hooks while preserving user hooks"
 
-echo "PASS test-installer: 5 checks green"
+# 6. DEBRIEF_DATA_DIR override does NOT relocate staged runtime or muse-hooks.json; DEBRIEF_RUNTIME_DIR does.
+other_data="${work}/other-kit-data"
+DEBRIEF_DATA_DIR="${other_data}" node "${CLI}" install --all --with-hooks --copy >/dev/null
+python3 -B - "${HOME}" "${XDG_DATA_HOME}" "${other_data}" <<'PY'
+import os, sys
+home, xdg_data, other = sys.argv[1:4]
+expected_runtime = os.path.join(xdg_data, "debrief", "runtime")
+assert os.path.isfile(os.path.join(expected_runtime, "bin", "debrief.mjs"))
+assert os.path.realpath(os.path.join(home, ".local", "bin", "debrief")) == os.path.realpath(
+    os.path.join(expected_runtime, "bin", "debrief.mjs")
+)
+assert not os.path.exists(os.path.join(other, "runtime")), "runtime must not be staged inside DEBRIEF_DATA_DIR"
+assert not os.path.exists(os.path.join(other, "muse-hooks.json")), "muse-hooks.json must not be written inside DEBRIEF_DATA_DIR"
+PY
+DEBRIEF_DATA_DIR="${other_data}" node "${CLI}" doctor | grep -q "data dir     : ${other_data}"
+custom_rt="${work}/custom-runtime"
+DEBRIEF_DATA_DIR="${other_data}" DEBRIEF_RUNTIME_DIR="${custom_rt}" node "${CLI}" install --harness claude --copy >/dev/null
+test -f "${custom_rt}/bin/debrief.mjs"
+DEBRIEF_DATA_DIR="${other_data}" node "${CLI}" uninstall --all >/dev/null
+echo "ok - staged runtime stays under XDG_DATA_HOME/debrief/runtime even when DEBRIEF_DATA_DIR is overridden"
+
+echo "PASS test-installer: 6 checks green"
