@@ -208,7 +208,7 @@ def render_radar_card(agg):
     cx, cy, max_r = 190.0, 165.0, 112.0
     n = len(RADAR_AXES)
     svg = [
-        '<svg viewBox="0 0 380 330" width="380" height="330" role="img" aria-label="Operational Trajectory Radar" style="max-width:100%;height:auto;display:block">',
+        '<svg viewBox="-55 0 490 330" width="440" height="330" role="img" aria-label="Operational Trajectory Radar" style="max-width:100%;height:auto;display:block">',
     ]
 
     # Concentric grid rings (25%, 50%, 75%, 100%)

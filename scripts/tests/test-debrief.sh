@@ -425,7 +425,17 @@ cat >"${work}/syn.json" <<'EOF'
 EOF
 
 rdir="${work}/reports"
-ren_out="$(bash "${DEBRIEF}" render --aggregate "${work}/agg-hostile.json" --synthesis "${work}/syn.json" --reports-dir "${rdir}")" && rc=0 || rc=1
+ren_out="$(bash "${DEBRIEF}" render --aggregate "${work}/agg-hostile.json" --synthesis "${work}/syn.json" --reports-dir "${rdir}" --json)" && rc=0 || rc=1
+human_out="$(bash "${DEBRIEF}" render --aggregate "${work}/agg-hostile.json" --synthesis "${work}/syn.json" --reports-dir "${rdir}")" && hrc=0 || hrc=1
+[ "${hrc}" -eq 0 ] && grep -q "DEBRIEF SUMMARY" <<<"${human_out}" &&
+	grep -q "Report   :" <<<"${human_out}" && grep -q "Latest   :" <<<"${human_out}" &&
+	grep -q "COVERAGE" <<<"${human_out}" &&
+	ok "render prints human-legible terminal summary with report paths by default" ||
+	no "render prints human-legible terminal summary with report paths by default"
+sum_out="$(bash "${DEBRIEF}" summary --aggregate "${work}/agg-hostile.json" --synthesis "${work}/syn.json")" && src=0 || src=1
+[ "${src}" -eq 0 ] && grep -q "DEBRIEF SUMMARY" <<<"${sum_out}" && grep -q "COVERAGE" <<<"${sum_out}" &&
+	ok "summary subcommand prints human-legible terminal summary" ||
+	no "summary subcommand prints human-legible terminal summary"
 [ "${rc}" -eq 0 ] && python3 - "${ren_out}" "${rdir}" <<'PYEOF' && ok "render writes offline escaped HTML (blocks script & attribute XSS)" || no "render writes offline escaped HTML (blocks script & attribute XSS)"
 import json, os, re, sys
 info = json.loads(sys.argv[1])

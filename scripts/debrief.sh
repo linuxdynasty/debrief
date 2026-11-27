@@ -21,7 +21,7 @@ LIB="${SCRIPT_DIR}/lib"
 
 usage() {
 	cat >&2 <<'EOF'
-Usage: bash scripts/debrief.sh <sessions|prepare|cache-write|aggregate|diff|render> [options...]
+Usage: bash scripts/debrief.sh <sessions|prepare|cache-write|aggregate|diff|render|summary> [options...]
 
 Examples:
   bash scripts/debrief.sh sessions --days 14 --harness opencode --limit 20
@@ -32,6 +32,7 @@ Examples:
   bash scripts/debrief.sh aggregate --days 30 --repo /path/to/repo --compare-prev --out agg.json
   bash scripts/debrief.sh diff --prev snap-a.json --curr agg-b.json --repo /path/to/repo
   bash scripts/debrief.sh render --aggregate agg.json --synthesis syn.json
+  bash scripts/debrief.sh summary --aggregate agg.json --synthesis syn.json
 EOF
 }
 
@@ -53,6 +54,9 @@ sessions | prepare | cache-write | aggregate | diff)
 	;;
 render)
 	exec python3 -B "${LIB}/debrief_render.py" "$@"
+	;;
+summary)
+	exec python3 -B "${LIB}/debrief_summary.py" "$@"
 	;;
 -h | --help)
 	usage

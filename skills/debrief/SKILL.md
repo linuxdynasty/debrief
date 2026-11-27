@@ -98,7 +98,7 @@ $DEBRIEF render \
   --synthesis "$WORK/synthesis.json"
 ```
 
-By default, `render` writes `$XDG_DATA_HOME/debrief/debrief-reports/report-YYYY-MM-DD-HHMMSS.html` and updates `report-latest.html` (override with `--out PATH`, `--snapshot-out PATH`, or `--no-snapshot`).
+By default, `render` writes `$XDG_DATA_HOME/debrief/debrief-reports/report-YYYY-MM-DD-HHMMSS.html`, updates `report-latest.html`, and prints a human-legible terminal summary with the exact report/snapshot paths, coverage, 6-axis Trajectory Radar scores, post-edit change-point verdicts, Pareto stats, key insight, and top recommended actions (pass `--json` for compact machine JSON paths, or run `$DEBRIEF summary --aggregate "$WORK/aggregate.json" --synthesis "$WORK/synthesis.json"` anytime). Override output paths with `--out PATH`, `--snapshot-out PATH`, or `--no-snapshot`.
 
 ### Step 5: Chat Summary
 

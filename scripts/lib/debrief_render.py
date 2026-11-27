@@ -25,6 +25,7 @@ from debrief_radar import render_diff_accountability_card, render_radar_card  # 
 from debrief_render_skills import render_friction_cards, render_harness_skill_section  # noqa: E402
 from debrief_render_trends import render_skill_trends_card  # noqa: E402
 from debrief_scope import render_single_session_banner  # noqa: E402
+from debrief_summary import format_terminal_summary  # noqa: E402
 from debrief_triggers import render_trigger_card  # noqa: E402
 
 
@@ -414,6 +415,7 @@ def main(argv=None):
     ap.add_argument("--no-snapshot", action="store_true", help="Skip persisting a report snapshot")
     ap.add_argument("--repo", action="append", default=[])
     ap.add_argument("--skills-dir", action="append", default=[])
+    ap.add_argument("--json", action="store_true", help="Emit compact JSON paths instead of human-legible summary")
     args = ap.parse_args(argv)
 
     agg = read_json(args.aggregate)
@@ -435,28 +437,36 @@ def main(argv=None):
             fh.write("\n")
         snap_path = args.snapshot_out
 
+    latest = None
     if args.out:
         out_path = args.out
         os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
         with open(out_path, "w", encoding="utf-8") as fh:
             fh.write(doc)
         res = {"report": out_path}
-        if snap_path:
-            res["snapshot"] = snap_path
-        sys.stdout.write(json.dumps(res) + "\n")
-        return
-
-    os.makedirs(rdir, exist_ok=True)
-    ts = datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S")
-    out_path = os.path.join(rdir, f"report-{ts}.html")
-    latest = os.path.join(rdir, "report-latest.html")
-    with open(out_path, "w", encoding="utf-8") as fh:
-        fh.write(doc)
-    shutil.copyfile(out_path, latest)
-    res = {"report": out_path, "latest": latest}
+    else:
+        os.makedirs(rdir, exist_ok=True)
+        ts = datetime.datetime.now().strftime("%Y-%m-%d-%H%M%S")
+        out_path = os.path.join(rdir, f"report-{ts}.html")
+        latest = os.path.join(rdir, "report-latest.html")
+        with open(out_path, "w", encoding="utf-8") as fh:
+            fh.write(doc)
+        shutil.copyfile(out_path, latest)
+        res = {"report": out_path, "latest": latest}
     if snap_path:
         res["snapshot"] = snap_path
-    sys.stdout.write(json.dumps(res) + "\n")
+    if args.json:
+        sys.stdout.write(json.dumps(res) + "\n")
+    else:
+        sys.stdout.write(
+            format_terminal_summary(
+                agg,
+                syn=syn,
+                report_path=out_path,
+                latest_path=latest,
+                snapshot_path=snap_path,
+            )
+        )
 
 
 if __name__ == "__main__":
