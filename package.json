@@ -1,7 +1,7 @@
 {
   "name": "@linuxdynasty/debrief",
   "version": "0.1.4",
-  "description": "Multi-harness operational debrief CLI, skill, and telemetry plugin for Claude Code, Codex, OpenCode, Antigravity (agy), Muse, and Cursor.",
+  "description": "Multi-harness operational debrief CLI, skill, and telemetry plugin for Claude Code, Codex, OpenCode, Antigravity (agy), Muse, Cursor, and Pi.",
   "type": "module",
   "license": "MIT",
   "author": "Allen Sanabria <https://github.com/linuxdynasty>",
@@ -22,6 +22,8 @@
     "antigravity",
     "muse",
     "cursor",
+    "pi",
+    "pi-coding-agent",
     "agent-skills",
     "pareto",
     "radar-chart",
