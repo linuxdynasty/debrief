@@ -80,6 +80,7 @@ jobs:
             "scripts/debrief.sh"
             "scripts/lib/debrief_pipeline.py"
             "scripts/lib/debrief_render.py"
+            "scripts/lib/debrief_extract_pi.py"
             "skills/debrief/SKILL.md"
             "hooks/hooks.json"
             "hooks/lib/telemetry-events.sh"
@@ -89,6 +90,7 @@ jobs:
             "hooks/agy/skill-loaded.sh"
             "hooks/muse/hooks.json"
             "hooks/opencode/debrief-telemetry.js"
+            "hooks/pi/debrief-telemetry.ts"
             "install.sh"
           )
           for f in "${required[@]}"; do
