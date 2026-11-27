@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "read_skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "%%HOOKS_DIR%%/muse/skill-loaded.sh"
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "%%HOOKS_DIR%%/muse/stop-failure.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

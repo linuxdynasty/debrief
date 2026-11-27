@@ -1,0 +1,51 @@
+{
+  "name": "@linuxdynasty/debrief",
+  "version": "0.1.0",
+  "description": "Multi-harness operational debrief CLI, skill, and telemetry plugin for Claude Code, Codex, OpenCode, Antigravity (agy), Muse, and Cursor.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Allen Sanabria <https://github.com/linuxdynasty>",
+  "homepage": "https://github.com/linuxdynasty/debrief#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/linuxdynasty/debrief.git"
+  },
+  "bugs": {
+    "url": "https://github.com/linuxdynasty/debrief/issues"
+  },
+  "keywords": [
+    "debrief",
+    "claude-code",
+    "claude-plugin",
+    "codex",
+    "opencode",
+    "antigravity",
+    "muse",
+    "cursor",
+    "agent-skills",
+    "pareto",
+    "radar-chart",
+    "insights"
+  ],
+  "bin": {
+    "debrief": "./bin/debrief.mjs"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    ".claude-plugin/",
+    "bin/",
+    "hooks/",
+    "lib/",
+    "scripts/debrief.sh",
+    "scripts/lib/",
+    "skills/",
+    "install.sh",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "bash scripts/run-tests.sh"
+  }
+}

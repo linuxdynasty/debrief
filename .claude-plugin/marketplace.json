@@ -1,0 +1,15 @@
+{
+  "name": "debrief",
+  "description": "Multi-harness operational debrief plugin for Claude Code, Codex, OpenCode, Antigravity (agy), Muse, and Cursor — session analytics, Trajectory Radar, Multi-Objective Pareto Fronts, and git change-point attribution.",
+  "owner": {
+    "name": "linuxdynasty",
+    "url": "https://github.com/linuxdynasty/debrief"
+  },
+  "plugins": [
+    {
+      "name": "debrief",
+      "source": "./",
+      "description": "Multi-harness /debrief skill, CLI pipeline, and lightweight content-free telemetry hooks with Trajectory Radar, Pareto Front optimization, report diff accountability, and post-edit attribution."
+    }
+  ]
+}
