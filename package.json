@@ -1,6 +1,6 @@
 {
   "name": "@linuxdynasty/debrief",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Multi-harness operational debrief CLI, skill, and telemetry plugin for Claude Code, Codex, OpenCode, Antigravity (agy), Muse, and Cursor.",
   "type": "module",
   "license": "MIT",
@@ -28,7 +28,7 @@
     "insights"
   ],
   "bin": {
-    "debrief": "./bin/debrief.mjs"
+    "debrief": "bin/debrief.mjs"
   },
   "engines": {
     "node": ">=18.0.0"

@@ -143,8 +143,10 @@ npm pack --dry-run  # Inspect published package tarball contents
 Tagging `vX.Y.Z` triggers [`.github/workflows/release.yml`](.github/workflows/release.yml), which verifies version parity across the git tag, `package.json`, and `.claude-plugin/plugin.json`, runs ShellCheck + `npm test`, packs and smoke-tests the tarball, publishes to npm with provenance (when `secrets.NPM_TOKEN` or repository variable `NPM_PUBLISH=true` for npm Trusted Publishing is set), and creates the GitHub Release with the `.tgz` asset and `SHA256SUMS`:
 
 ```bash
-git tag -a v0.1.0 -m "Release v0.1.0"
-git push origin v0.1.0
+# Tag matching package.json & .claude-plugin/plugin.json (e.g. vX.Y.Z):
+VER="$(node -p 'require("./package.json").version')"
+git tag -a "v${VER}" -m "Release v${VER}"
+git push origin "v${VER}"
 ```
 
 License: [MIT](LICENSE)
