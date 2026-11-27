@@ -87,7 +87,7 @@ Opt out of hook telemetry at any time with `DEBRIEF_TELEMETRY_OFF=1`.
 
 ### Inside any harness
 Invoke `/debrief`:
-- `/debrief` — default 30-day debrief across all 7 harnesses
+- `/debrief` — default 30-day debrief across all 6 mining harnesses
 - `/debrief for the current session` — single-session Deep-Dive (`--current`)
 - `/debrief for codex and opencode all time` — `--harness codex,opencode --all-time`
 - `/debrief compare against previous report` — `--compare-prev` with overlaid Trajectory Radar + accountability

@@ -1,13 +1,13 @@
 ---
 name: debrief
-description: "Use when asked for a skills debrief, /debrief, a usage-insights-style report, or workflow recommendations across Claude Code, Codex, OpenCode, Antigravity (agy), Muse, and Cursor. Runs debrief (Stage 1 meta + Stage 2 cached semantic facets + optional hook telemetry) and renders an offline interactive HTML report."
+description: "Use when asked for a skills debrief, /debrief, a usage-insights-style report, or workflow recommendations across Claude Code, Codex, OpenCode, Antigravity (agy), Muse, Cursor, and Pi. Runs debrief (Stage 1 meta + Stage 2 cached semantic facets + optional hook telemetry) and renders an offline interactive HTML report."
 ---
 
 # Multi-Harness Agent Debrief
 
-Generate an `/insights`-grade operational debrief across **Claude Code**, **Codex**, **OpenCode**, **Antigravity (`agy`)**, and **Muse** sessions. Deterministic scripts extract session metadata, cache semantic facets locally under `$DEBRIEF_DATA_DIR/debrief-cache/` (default `$XDG_DATA_HOME/debrief/debrief-cache/`), merge optional hook telemetry (`skills-usage.jsonl`) and git history, and render an offline interactive HTML report. Your job is to orchestrate parallel fast-tier facet extraction for uncached sessions and write the high-signal narrative synthesis and actionable workflow fixes.
+Generate an `/insights`-grade operational debrief across **Claude Code**, **Codex**, **OpenCode**, **Antigravity (`agy`)**, **Muse**, **Cursor**, and **Pi** sessions. Deterministic scripts extract session metadata, cache semantic facets locally under `$DEBRIEF_DATA_DIR/debrief-cache/` (default `$XDG_DATA_HOME/debrief/debrief-cache/`), merge optional hook telemetry (`skills-usage.jsonl`) and git history, and render an offline interactive HTML report. Your job is to orchestrate parallel fast-tier facet extraction for uncached sessions and write the high-signal narrative synthesis and actionable workflow fixes.
 
-By default, debrief runs across **all 5 harnesses (`muse,agy,claude,codex,opencode`)** and **all repos** over the last **30 days**. Narrow or widen scope as requested:
+By default, debrief runs across **all 6 mining harnesses (`muse,agy,claude,codex,opencode,pi`)** and **all repos** over the last **30 days**. Only these emit transcripts. **Cursor** is skill-install only, so it never appears in mining scope. Narrow or widen scope as requested:
 - Current active session: `--current` (resolves via harness session env var or fail-closed CWD recency; pass `--harness` if two harnesses are active simultaneously).
 - Explicit session(s): `--session ID` (repeatable, comma-separated, exact ID, unique >=8-char prefix, or `<harness>:<id>`) or `--sessions-file PATH`. Linked child subagents are auto-included unless `--no-children` is passed. Use `debrief sessions [--days N|--all-time] [--harness ...] [--limit N]` to list discoverable IDs.
 - Single provider or all-time: `--harness <name[,name...]|all>` (strict validation; unknown names exit 2), `--since YYYY-MM-DD`, `--days N`, `--all-time`, or `--project SUB`.
@@ -31,7 +31,7 @@ $DEBRIEF prepare --days 30 --max-new 100 --batch-size 10
 ```
 
 Add `--since`, `--all-time`, `--project`, `--harness`, `--current`, `--session`, or `--sessions-file` if requested. `prepare`:
-- Extracts/caches Stage 1 metadata (`tools`, `error_categories`, `languages`, `response_gaps`, `message_hours`, `skill_loads`, `turns_after_skill_load`, `post_load_attribution`, `git_commits`, `subagents`, and token/cache usage across all 5 harnesses) incrementally by file `mtime`.
+- Extracts/caches Stage 1 metadata (`tools`, `error_categories`, `languages`, `response_gaps`, `message_hours`, `skill_loads`, `turns_after_skill_load`, `post_load_attribution`, `git_commits`, `subagents`, and token/cache usage across all 6 mining harnesses) incrementally by file `mtime`.
 - Auto-imports existing `~/.claude/usage-data/facets/*.json` so Claude sessions are not re-classified.
 - Rolls child subagents into their parent coordinator digest (unless `--no-children`).
 - Skips trivial sessions (`prompts < 2` and `tool_calls < 3`).
@@ -46,7 +46,7 @@ Otherwise, dispatch **one fast-tier subagent per `batch-XX.json` in parallel** (
 ```json
 {
   "session_id": "<exact digest session_id>",
-  "harness": "muse|agy|claude|codex|opencode",
+  "harness": "muse|agy|claude|codex|opencode|pi",
   "source_mtime": 0,
   "underlying_goal": "1 concise sentence describing what the user wanted",
   "goal_categories": {"<snake_case_category>": 1},
