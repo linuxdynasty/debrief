@@ -19,12 +19,14 @@ no() {
 }
 
 # Create a fake git repo with a GitHub origin so auto-discovery resolves owner/repo.
-repo="${WORK}/demo-repo"
-mkdir -p "${repo}" "${WORK}/cache/meta" "${WORK}/cache/facets" "${WORK}/cache/github"
+repo="${WORK}/demo"
+other_repo="${WORK}/other-project"
+mkdir -p "${repo}" "${other_repo}" "${WORK}/cache/meta" "${WORK}/cache/facets" "${WORK}/cache/github"
 git -C "${repo}" init -q
 git -C "${repo}" remote add origin "https://github.com/acme/demo.git"
 
-# Seed two Stage 1 session metas (one joined by branch, one joined by commit SHA).
+# Seed three Stage 1 session metas: one joined by repo+branch, one joined by commit SHA,
+# and one from ANOTHER repo sharing the same branch name (must NOT cross-match).
 now_ep="$(python3 -c 'import time; print(int(time.time()))')"
 cat >"${WORK}/cache/meta/muse__sess001.json" <<EOF
 {
@@ -33,6 +35,15 @@ cat >"${WORK}/cache/meta/muse__sess001.json" <<EOF
   "first_epoch": $((now_ep - 3600)), "last_epoch": $((now_ep - 1800)), "source_mtime": ${now_ep},
   "prompts": 4, "tool_calls": 20, "errors": {"Command Failed": 1},
   "skill_loads": ["executor-preflight", "code-review"], "tools": {"bash": 10}
+}
+EOF
+cat >"${WORK}/cache/meta/codex__sess_other.json" <<EOF
+{
+  "schema_version": 2, "harness": "codex", "id": "sess_other",
+  "project": "${other_repo}", "branch": "feat/keyed-probe", "commit": "999988887777",
+  "first_epoch": $((now_ep - 3500)), "last_epoch": $((now_ep - 1700)), "source_mtime": ${now_ep},
+  "prompts": 2, "tool_calls": 5, "errors": {},
+  "skill_loads": ["unrelated-skill"], "tools": {"bash": 2}
 }
 EOF
 cat >"${WORK}/cache/meta/claude__sess002.json" <<EOF
@@ -133,7 +144,7 @@ cat >"${WORK}/cache/github/acme__demo.papercuts.json" <<EOF
 {
   "schema_version": 1,
   "issues": [
-    {"number": 501, "title": "[papercut] preflight missed skip", "state": "OPEN", "body": "skill: executor-preflight\nMissed skipped live test."}
+    {"number": 501, "state": "OPEN", "stateReason": "", "skill": "executor-preflight"}
   ]
 }
 EOF
@@ -161,6 +172,8 @@ assert rev["joined_prs"] == 2, rev       # PR #101 by branch, PR #102 by commit
 assert set(rev["by_reviewer_source"].keys()) >= {"reviewd", "chatgpt-codex", "human"}, rev["by_reviewer_source"]
 assert rev["per_skill"]["executor-preflight"]["real_p1"] == 1, rev["per_skill"]
 assert rev["per_skill"]["golang-engineering"]["real_p1"] == 1, rev["per_skill"]
+assert "unrelated-skill" not in rev["per_skill"], rev["per_skill"]
+assert "codex" not in rev["by_harness"], rev["by_harness"]
 assert d["papercuts"] is not None and d["papercuts"]["total_open"] == 1, d["papercuts"]
 by_sk = {r["skill"]: r for r in d["skill_table"]}
 assert by_sk["executor-preflight"]["escaped_p1"] == 1 and by_sk["executor-preflight"]["papercut_open"] == 1, by_sk

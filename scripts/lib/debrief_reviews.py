@@ -23,13 +23,36 @@ CATEGORY_HINTS = {
 }
 
 
+def _session_matches_repo(meta, repo_slug):
+    """Return True when session project/workspaces match the PR's repository name."""
+    if not repo_slug:
+        return True
+    repo_name = repo_slug.split("/")[-1].strip().lower()
+    if not repo_name:
+        return True
+    candidates = [str(meta.get("project") or "")] + [str(w) for w in (meta.get("workspaces") or [])]
+    seen_any = False
+    for raw in candidates:
+        p = raw.strip().rstrip("/")
+        if not p:
+            continue
+        seen_any = True
+        base = os.path.basename(p).lower()
+        # Match exact repo name or worktree prefix (e.g. demo, demo-wt-123, demo-123)
+        if base == repo_name or base.startswith(repo_name + "-") or base.startswith(repo_name + "_"):
+            return True
+    return not seen_any
+
+
 def _match_pr_sessions(pr, metas_by_branch, metas_by_commit):
-    """Join a PR record to local Stage 1 sessions by branch name or commit prefix."""
+    """Join a PR record to local Stage 1 sessions by repo-scoped branch or commit."""
     matched = {}
+    repo_slug = str(pr.get("repo") or "").strip()
     br = str(pr.get("branch") or "").strip()
     if br and br not in ("main", "master", "HEAD"):
         for m in metas_by_branch.get(br, []):
-            matched[(m["harness"], m["id"])] = m
+            if _session_matches_repo(m, repo_slug):
+                matched[(m["harness"], m["id"])] = m
     for sha in pr.get("commits") or []:
         short = str(sha or "")[:8]
         if len(short) >= 7:

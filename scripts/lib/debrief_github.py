@@ -17,10 +17,12 @@ from collections import defaultdict
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from debrief_common import (  # noqa: E402
     atomic_write_json,
+    canon_skill,
     default_cache_dir,
     resolve_since,
     safe_int,
 )
+PAPERCUT_SKILL_RE = re.compile(r"^\s*skill\s*:\s*[`'\"]?([A-Za-z0-9_.:-]+)", re.IGNORECASE | re.MULTILINE)
 
 GITHUB_REMOTE_RE = re.compile(
     r"(?:github\.com[:/])([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+?)(?:\.git)?/?$"
@@ -65,10 +67,12 @@ query($owner: String!, $name: String!, $cursor: String, $first: Int!) {
         number state headRefName createdAt updatedAt mergedAt
         author { login }
         commits(last: 20) { nodes { commit { oid } } }
-        reviews(last: 30) {
+        reviews(first: 100) {
+          pageInfo { hasNextPage endCursor }
           nodes { author { login } state submittedAt commit { oid } body }
         }
         reviewThreads(first: 100) {
+          pageInfo { hasNextPage endCursor }
           nodes {
             id isResolved isOutdated path line originalLine
             comments(first: 15) {
@@ -76,6 +80,40 @@ query($owner: String!, $name: String!, $cursor: String, $first: Int!) {
                 author { login } createdAt
                 commit { oid } originalCommit { oid } body
               }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+"""
+
+PR_MORE_REVIEWS_QUERY = """
+query($owner: String!, $name: String!, $num: Int!, $cursor: String!) {
+  repository(owner: $owner, name: $name) {
+    pullRequest(number: $num) {
+      reviews(first: 100, after: $cursor) {
+        pageInfo { hasNextPage endCursor }
+        nodes { author { login } state submittedAt commit { oid } body }
+      }
+    }
+  }
+}
+"""
+
+PR_MORE_THREADS_QUERY = """
+query($owner: String!, $name: String!, $num: Int!, $cursor: String!) {
+  repository(owner: $owner, name: $name) {
+    pullRequest(number: $num) {
+      reviewThreads(first: 100, after: $cursor) {
+        pageInfo { hasNextPage endCursor }
+        nodes {
+          id isResolved isOutdated path line originalLine
+          comments(first: 15) {
+            nodes {
+              author { login } createdAt
+              commit { oid } originalCommit { oid } body
             }
           }
         }
@@ -320,6 +358,52 @@ def _check_gh_ready():
         return False, f"gh auth check failed: {exc}"
 
 
+def _paginate_pr_nested(owner, name, node):
+    """Fetch remaining pages of reviews/reviewThreads when a PR exceeds 100."""
+    num = safe_int(node.get("number"), 0)
+    if not num:
+        return
+    for field, query in (("reviews", PR_MORE_REVIEWS_QUERY), ("reviewThreads", PR_MORE_THREADS_QUERY)):
+        conn = node.get(field) or {}
+        pi = conn.get("pageInfo") or {}
+        pages = 0
+        while pi.get("hasNextPage") and pi.get("endCursor") and pages < 10:
+            pages += 1
+            raw = subprocess.check_output(
+                [
+                    "gh", "api", "graphql",
+                    "-f", f"query={query}",
+                    "-f", f"owner={owner}", "-f", f"name={name}",
+                    "-F", f"num={num}", "-f", f"cursor={pi['endCursor']}",
+                ],
+                stderr=subprocess.PIPE, text=True, timeout=60,
+            )
+            data = json.loads(raw)
+            if data.get("errors"):
+                break
+            nxt = (((data.get("data") or {}).get("repository") or {}).get("pullRequest") or {}).get(field) or {}
+            conn.setdefault("nodes", []).extend(nxt.get("nodes") or [])
+            pi = nxt.get("pageInfo") or {}
+
+
+def normalize_papercut_issue(rec):
+    """Strip raw title/body prose from a papercut issue, keeping only metadata + skill."""
+    if not isinstance(rec, dict):
+        return None
+    skill = str(rec.get("skill") or "").strip()
+    if not skill:
+        m = PAPERCUT_SKILL_RE.search(str(rec.get("body") or ""))
+        skill = canon_skill(m.group(1).rstrip(".")) if m else ""
+    else:
+        skill = canon_skill(skill.rstrip("."))
+    return {
+        "number": safe_int(rec.get("number"), 0),
+        "state": str(rec.get("state") or ""),
+        "stateReason": str(rec.get("stateReason") or ""),
+        "skill": skill,
+    }
+
+
 def sync_github_repo(repo_slug, days=30, limit=100, cache_dir=None, out_reviews="", out_papercuts=""):
     """Fetch PR reviews + papercut issues via gh and cache structured JSON locally."""
     owner, _, name = repo_slug.partition("/")
@@ -354,27 +438,28 @@ def sync_github_repo(repo_slug, days=30, limit=100, cache_dir=None, out_reviews=
             if since_ep and upd_ep and upd_ep < since_ep:
                 stop_old = True
                 break
+            _paginate_pr_nested(owner, name, node)
             prs.append(normalize_pr_node(node, repo_slug=repo_slug))
         pi = conn.get("pageInfo") or {}
         if stop_old or not pi.get("hasNextPage") or not pi.get("endCursor"):
             break
         cursor = pi["endCursor"]
 
-    papercut_issues = []
+    papercut_issues = None
     try:
         pc_raw = subprocess.check_output(
             [
                 "gh", "issue", "list", "-R", repo_slug,
                 "--label", "papercut", "--state", "all", "--limit", "200",
-                "--json", "number,title,body,state,stateReason",
+                "--json", "number,body,state,stateReason",
             ],
             stderr=subprocess.PIPE, text=True, timeout=30,
         )
         parsed = json.loads(pc_raw)
         if isinstance(parsed, list):
-            papercut_issues = parsed
+            papercut_issues = [n for n in (normalize_papercut_issue(r) for r in parsed) if n]
     except Exception:
-        papercut_issues = []
+        papercut_issues = None
 
     default_rev, default_pc = cache_paths_for_slug(repo_slug, cache_dir)
     rev_path, pc_path = out_reviews or default_rev, out_papercuts or default_pc
@@ -383,12 +468,16 @@ def sync_github_repo(repo_slug, days=30, limit=100, cache_dir=None, out_reviews=
         "schema_version": 1, "repo": repo_slug, "synced_at": now_iso,
         "since": since_str, "days": days, "prs": prs,
     })
-    atomic_write_json(pc_path, {
-        "schema_version": 1, "repo": repo_slug, "synced_at": now_iso,
-        "issues": papercut_issues,
-    })
+    # Preserve existing papercut cache when fetching issues failed.
+    if papercut_issues is not None:
+        atomic_write_json(pc_path, {
+            "schema_version": 1, "repo": repo_slug, "synced_at": now_iso,
+            "issues": papercut_issues,
+        })
     return {
-        "repo": repo_slug, "prs_synced": len(prs), "papercuts_synced": len(papercut_issues),
+        "repo": repo_slug, "prs_synced": len(prs),
+        "papercuts_synced": len(papercut_issues) if papercut_issues is not None else None,
+        "papercuts_preserved": papercut_issues is None and os.path.isfile(pc_path),
         "reviews_path": rev_path, "papercuts_path": pc_path,
     }
 

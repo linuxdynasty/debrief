@@ -209,9 +209,13 @@ def papercut_stats(path):
                 continue
             if dedup_key:
                 seen_ids.add(dedup_key)
-            match = PAPERCUT_SKILL_RE.search(str(rec.get("body") or ""))
-            # Sentence-final periods are prose, not part of the name ("skill: debrief." joins debrief).
-            skill = canon_skill(match.group(1).rstrip(".")) if match else ""
+            pre_skill = str(rec.get("skill") or "").strip()
+            if pre_skill:
+                skill = canon_skill(pre_skill.rstrip("."))
+            else:
+                match = PAPERCUT_SKILL_RE.search(str(rec.get("body") or ""))
+                # Sentence-final periods are prose, not part of the name ("skill: debrief." joins debrief).
+                skill = canon_skill(match.group(1).rstrip(".")) if match else ""
             if not skill:
                 unmatched += 1
                 continue
