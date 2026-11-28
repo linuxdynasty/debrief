@@ -104,9 +104,10 @@ def review_escape_stats(paths, metas=None, since_epoch=0.0):
         for r in revs:
             by_reviewer[r.get("reviewer_source") or "human"] += 1
 
-        pr_real_p0 = pr_real_p1 = pr_real_p2 = pr_timing_p1 = 0
+        pr_real_p0 = pr_real_p1 = pr_real_p2 = pr_real_ungraded = pr_timing_p1 = 0
         pr_rep_real = pr_rep_timing = 0
         pr_real_cats = Counter()
+        has_changes_requested = any(str(r.get("state") or "").upper() == "CHANGES_REQUESTED" for r in revs)
 
         for t in threads:
             threads_total += 1
@@ -159,16 +160,18 @@ def review_escape_stats(paths, metas=None, since_epoch=0.0):
                 pr_real_cats[cat] += 1
                 if is_rep:
                     by_cat[cat]["repeat"] += 1
-            elif sev == "UNGRADED":
+            elif sev == "UNGRADED" and not is_adv:
                 real_ungraded += 1
+                pr_real_ungraded += 1
                 by_cat[cat]["ungraded"] += 1
                 by_cat[cat]["prs"].add(pr["number"])
+                pr_real_cats[cat] += 1
                 if is_rep:
                     by_cat[cat]["repeat"] += 1
 
         rev_p1_rounds = sum(1 for r in revs if safe_int((r.get("counts") or {}).get("P1"), 0) > 0)
         has_rep_p1 = (pr_rep_real + pr_rep_timing) > 0 or rev_p1_rounds >= 2
-        if pr_real_p0 + pr_real_p1 + pr_real_p2 > 0:
+        if pr_real_p0 + pr_real_p1 + pr_real_p2 + pr_real_ungraded > 0 or has_changes_requested:
             prs_real_escape += 1
         if has_rep_p1:
             prs_repeat_p1 += 1
@@ -201,7 +204,7 @@ def review_escape_stats(paths, metas=None, since_epoch=0.0):
             for h in harnesses_seen:
                 bh = by_harness[h]
                 bh["prs"] += 1
-                if pr_real_p0 + pr_real_p1 + pr_real_p2 > 0:
+                if pr_real_p0 + pr_real_p1 + pr_real_p2 + pr_real_ungraded > 0 or has_changes_requested:
                     bh["real_escape_prs"] += 1
                 bh["real_p1"] += pr_real_p1
                 bh["real_p2"] += pr_real_p2

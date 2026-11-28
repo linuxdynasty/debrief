@@ -106,6 +106,24 @@ cat >"${WORK}/cache/github/acme__demo.reviews.json" <<EOF
           "comments": {"nodes": [{"author": {"login": "cursor-bugbot[bot]"}, "createdAt": "${now_iso}", "originalCommit": {"oid": "cccc3333dddd4444"}, "body": "Medium: missing coverage on error branch."}]}
         }
       ]}
+    },
+    {
+      "number": 103,
+      "state": "OPEN",
+      "headRefName": "feat/human-review",
+      "createdAt": "${now_iso}",
+      "updatedAt": "${now_iso}",
+      "mergedAt": null,
+      "commits": {"nodes": [{"commit": {"oid": "eeee5555ffff6666"}}]},
+      "reviews": {"nodes": [
+        {"author": {"login": "teammate"}, "state": "CHANGES_REQUESTED", "submittedAt": "${now_iso}", "commit": {"oid": "eeee5555ffff6666"}, "body": "Please fix the nil deref."}
+      ]},
+      "reviewThreads": {"nodes": [
+        {
+          "id": "T6", "isResolved": false, "isOutdated": false, "path": "pkg/handler.go", "line": 18,
+          "comments": {"nodes": [{"author": {"login": "teammate"}, "createdAt": "${now_iso}", "originalCommit": {"oid": "eeee5555ffff6666"}, "body": "This dereferences req.User when req is nil."}]}
+        }
+      ]}
     }
   ]
 }
@@ -130,16 +148,17 @@ import json, sys
 d = json.load(open(sys.argv[1]))
 rev = d["review_escapes"]
 assert rev is not None, "review_escapes missing"
-assert rev["prs_reviewed"] == 2, rev
-assert rev["prs_with_real_escapes"] == 2, rev
+assert rev["prs_reviewed"] == 3, rev
+assert rev["prs_with_real_escapes"] == 3, rev
 assert rev["real_p1"] == 2, rev          # T1 (evidence-overclaim) + T4 (codex P1 race)
 assert rev["real_p2"] == 1, rev          # T5 (cursor-bugbot Medium -> P2)
+assert rev["real_ungraded"] == 1, rev    # T6 (plain human comment with no severity tag)
 assert rev["timing_noise_p1"] == 2, rev  # T2 + T3 (CI pending / sandbox has no database)
 assert rev["repeat_p1_timing"] == 1, rev
-assert rev["threads_total"] == 5 and rev["threads_unanswered"] == 4, rev
+assert rev["threads_total"] == 6 and rev["threads_unanswered"] == 5, rev
 assert rev["threads_unresolved_on_merged"] == 2, rev  # T1 + T3 on MERGED PR #101
 assert rev["joined_prs"] == 2, rev       # PR #101 by branch, PR #102 by commit
-assert set(rev["by_reviewer_source"].keys()) >= {"reviewd", "chatgpt-codex"}, rev["by_reviewer_source"]
+assert set(rev["by_reviewer_source"].keys()) >= {"reviewd", "chatgpt-codex", "human"}, rev["by_reviewer_source"]
 assert rev["per_skill"]["executor-preflight"]["real_p1"] == 1, rev["per_skill"]
 assert rev["per_skill"]["golang-engineering"]["real_p1"] == 1, rev["per_skill"]
 assert d["papercuts"] is not None and d["papercuts"]["total_open"] == 1, d["papercuts"]
