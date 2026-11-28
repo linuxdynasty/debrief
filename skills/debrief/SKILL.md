@@ -24,11 +24,14 @@ Resolve the CLI in order:
 2. Otherwise follow symlinks from this `SKILL.md` (`readlink -f`) and go up two levels (`skills/debrief/SKILL.md` -> package root containing `scripts/debrief.sh`), setting `DEBRIEF="bash $ROOT/scripts/debrief.sh"`.
 3. Otherwise invoke `npx -y @linuxdynasty/debrief` (or check `~/.local/share/debrief/runtime/scripts/debrief.sh`).
 
-Run Stage 1 extraction and batch preparation:
+Run Stage 1 extraction and batch preparation (and best-effort GitHub sync for PR reviews and papercut issues when `gh` is logged in — fails open with zero impact for offline or non-GitHub repos):
 
 ```bash
+$DEBRIEF sync-github --repo "$PWD" --days 30 --best-effort
 $DEBRIEF prepare --days 30 --max-new 100 --batch-size 10
 ```
+
+Pass repeatable `--repo` (or `--gh-repo owner/name`) to `sync-github` when reviewing multiple repositories. `sync-github` caches content-free PR review metadata (universal across human reviewers, `reviewd`, ChatGPT/Codex, Claude, Cursor Bugbot, Copilot, and CodeRabbit) plus `papercut`-labeled issues under `$DEBRIEF_DATA_DIR/debrief-cache/github/`; `aggregate` auto-loads those local caches offline for every `--repo` (pass `--no-github-cache` to ignore them).
 
 Add `--since`, `--all-time`, `--project`, `--harness`, `--current`, `--session`, or `--sessions-file` if requested. `prepare`:
 - Extracts/caches Stage 1 metadata (`tools`, `error_categories`, `languages`, `response_gaps`, `message_hours`, `skill_loads`, `turns_after_skill_load`, `post_load_attribution`, `git_commits`, `subagents`, and token/cache usage across all 6 mining harnesses) incrementally by file `mtime`.
@@ -84,7 +87,7 @@ Pass `--log` for extra telemetry logs, repeatable `--repo` / `--skills-dir` flag
 - **Multi-Objective Pareto Fronts**: computed over effectiveness, overhead/load, and friction/load (plus per-`(skill, harness)` version fronts with `HEAD` regression alerts and hypervolume `HV` when `--evals` / `--eval-history` is supplied).
 - **Optional Joins**: `--papercuts FILE` (offline JSON export of labeled issues), `--evals PATH` (A/B replay-eval summaries), `--trigger-evals PATH` (trigger precision/recall JSON), `--eval-history [PATH]` (version trend JSONL).
 
-Read `$WORK/aggregate.json` — key top-level sections: `meta`, `by_harness`, `hooks`, `charts`, `interjections`, `skill_table`, `skill_costs`, `repositories`, `skill_recommendations`, `changepoints`, `pareto`, `radar_profile`, `diff_from_prev`, `session_health`, `coaching_playbook`, `facet_summaries`.
+Read `$WORK/aggregate.json` — key top-level sections: `meta`, `by_harness`, `hooks`, `charts`, `interjections`, `skill_table`, `skill_costs`, `repositories`, `skill_recommendations`, `changepoints`, `pareto`, `radar_profile`, `diff_from_prev`, `session_health`, `coaching_playbook`, `review_escapes`, `papercuts`, `facet_summaries`. When `review_escapes` is present, highlight real escaped defect classes separately from CI-timing/sandbox noise, repeat-P1 loops, unanswered threads, and which skills/hooks to tighten.
 
 ### Step 4: Synthesize Usage-Driven Recommendations & Render HTML
 

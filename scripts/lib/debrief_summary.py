@@ -202,6 +202,33 @@ def format_terminal_summary(agg, syn=None, report_path=None, latest_path=None, s
                 f"{safe_int(acct_counts.get('not_done'), 0)} not done"
             )
 
+    rev = agg.get("review_escapes") or {}
+    if isinstance(rev, dict) and safe_int(rev.get("prs_reviewed"), 0) > 0:
+        esc_pct = rev.get("escape_rate_pct")
+        rep_pct = rev.get("repeat_p1_rate_pct")
+        unans_pct = rev.get("unanswered_pct")
+        esc_s = f"{esc_pct:.1f}%" if esc_pct is not None else "n/a"
+        rep_s = f"{rep_pct:.1f}%" if rep_pct is not None else "n/a"
+        unans_s = f"{unans_pct:.1f}%" if unans_pct is not None else "n/a"
+        lines.append("")
+        lines.append("POST-PUSH PR REVIEW CATCHES")
+        lines.append(
+            f"  Escapes  : {esc_s} ({safe_int(rev.get('prs_with_real_escapes'), 0)}/{safe_int(rev.get('prs_reviewed'), 0)} PRs) | "
+            f"{safe_int(rev.get('real_p0'), 0) + safe_int(rev.get('real_p1'), 0)} real P1, "
+            f"{safe_int(rev.get('real_p2'), 0)} real P2 | "
+            f"{safe_int(rev.get('timing_noise_p1'), 0)} CI-timing noise P1"
+        )
+        lines.append(
+            f"  Threads  : Repeat-P1 {rep_s} ({safe_int(rev.get('prs_with_repeat_p1'), 0)}/{safe_int(rev.get('prs_multi_round'), 0)} multi-round) | "
+            f"Unanswered {unans_s} | Open at merge: {safe_int(rev.get('threads_unresolved_on_merged'), 0)}"
+        )
+        top_cats = [
+            f"{c['category']}({safe_int(c.get('p0'), 0) + safe_int(c.get('p1'), 0)}P1/{safe_int(c.get('p2'), 0)}P2)"
+            for c in (rev.get("by_category") or [])[:4]
+        ]
+        if top_cats:
+            lines.append(f"  Top Catch: {', '.join(top_cats)}")
+
     key_insight = str(syn.get("key_insight") or "").strip()
     if not key_insight:
         aag = syn.get("at_a_glance") or {}

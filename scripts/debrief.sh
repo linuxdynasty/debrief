@@ -21,13 +21,14 @@ LIB="${SCRIPT_DIR}/lib"
 
 usage() {
 	cat >&2 <<'EOF'
-Usage: bash scripts/debrief.sh <sessions|prepare|cache-write|aggregate|diff|render|summary> [options...]
+Usage: bash scripts/debrief.sh <sessions|prepare|sync-github|cache-write|aggregate|diff|render|summary> [options...]
 
 Examples:
   bash scripts/debrief.sh sessions --days 14 --harness opencode --limit 20
   bash scripts/debrief.sh prepare --current
   bash scripts/debrief.sh prepare --session abc12345 --session def67890
   bash scripts/debrief.sh prepare --days 30 --max-new 100 --batch-size 10
+  bash scripts/debrief.sh sync-github --repo /path/to/repo --days 30 --best-effort
   bash scripts/debrief.sh cache-write facets-batch-01.json
   bash scripts/debrief.sh aggregate --days 30 --repo /path/to/repo --compare-prev --out agg.json
   bash scripts/debrief.sh diff --prev snap-a.json --curr agg-b.json --repo /path/to/repo
@@ -49,7 +50,7 @@ cmd="${1:-}"
 shift
 
 case "${cmd}" in
-sessions | prepare | cache-write | aggregate | diff)
+sessions | prepare | sync-github | cache-write | aggregate | diff)
 	exec python3 -B "${LIB}/debrief_pipeline.py" "${cmd}" "$@"
 	;;
 render)
