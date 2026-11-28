@@ -26,6 +26,7 @@ from debrief_diff import (  # noqa: E402
     build_snapshot,
     diff_snapshots,
 )
+from debrief_github import cmd_sync_github  # noqa: E402
 from debrief_scope import (  # noqa: E402
     build_scope_meta,
     filter_metas_by_sessions,
@@ -449,6 +450,16 @@ def main(argv=None):
     p_prep.add_argument("--no-claude-import", action="store_true")
     p_prep.add_argument("--aliases", default="", help="Optional TSV skill alias map (default: kit overlay or none)")
 
+    p_gh = sub.add_parser("sync-github")
+    p_gh.add_argument("--repo", action="append", default=[], help="Local git repo checkout (resolves GitHub origin)")
+    p_gh.add_argument("--gh-repo", action="append", default=[], help="Explicit GitHub owner/name slug (repeatable)")
+    p_gh.add_argument("--days", type=int, default=30, help="Sync PRs updated in the last N days (default: 30)")
+    p_gh.add_argument("--limit", type=int, default=100, help="Max PRs to fetch per repo (default: 100)")
+    p_gh.add_argument("--cache-dir", default="")
+    p_gh.add_argument("--out-reviews", default="", help="Optional explicit output path for reviews JSON (single repo)")
+    p_gh.add_argument("--out-papercuts", default="", help="Optional explicit output path for papercuts JSON (single repo)")
+    p_gh.add_argument("--best-effort", action="store_true", help="Exit 0 with skipped=true if gh is absent, unauth, or offline")
+
     p_cw = sub.add_parser("cache-write")
     p_cw.add_argument("--cache-dir", default="")
     p_cw.add_argument("input", nargs="?", default="-")
@@ -463,6 +474,10 @@ def main(argv=None):
                        help="Skill directory to scan for SKILL.md byte sizes (repeatable; flat or layered)")
     p_agg.add_argument("--papercuts", default="",
                        help="JSON snapshot of papercut issues (array or {\"issues\": [...]}) joined on the skill: body line; no live gh calls")
+    p_agg.add_argument("--pr-reviews", action="append", default=[],
+                       help="JSON snapshot of GitHub PR reviews (from debrief sync-github or GraphQL export); offline only")
+    p_agg.add_argument("--no-github-cache", action="store_true",
+                       help="Do not auto-load cached sync-github PR review or papercut files for --repo checkouts")
     p_agg.add_argument("--evals", action="append", default=[],
                        help="JSON file or directory of *.json replay-eval summaries joined per skill; offline only")
     p_agg.add_argument("--eval-history", action="append", nargs="?", const=None, default=[],
@@ -491,6 +506,8 @@ def main(argv=None):
         cmd_sessions(args)
     elif args.cmd == "prepare":
         cmd_prepare(args)
+    elif args.cmd == "sync-github":
+        cmd_sync_github(args)
     elif args.cmd == "cache-write":
         cmd_cache_write(args)
     elif args.cmd == "aggregate":

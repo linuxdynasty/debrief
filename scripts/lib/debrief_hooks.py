@@ -172,51 +172,63 @@ PAPERCUT_SKILL_RE = re.compile(r"^\s*skill\s*:\s*[`'\"]?([A-Za-z0-9_.:-]+)", re.
 
 
 def papercut_stats(path):
-    """Per-skill papercut filed, open, and fixed counts from a snapshot file.
+    """Per-skill papercut filed, open, and fixed counts from one or more snapshot files.
 
-    The snapshot is JSON exported out of band (e.g. ``gh issue list --label
-    papercut --json number,title,body,state,stateReason``), either a bare
-    array or ``{"issues": [...]}``. The join key is the required ``skill:``
-    body line the papercut template asks for; issues without one count as
-    unmatched, never as zero-skill findings. Open means state == OPEN; fixed
-    means CLOSED for a reason other than NOT_PLANNED. Offline only: no network calls.
+    Accepts a single JSON file path or a list/tuple of paths. Each snapshot is
+    JSON exported out of band (or cached by ``debrief sync-github``), either a
+    bare array or ``{"issues": [...]}``. Offline only: no network calls.
     """
     if not path:
         return None
-    try:
-        with open(path, encoding="utf-8") as fh:
-            raw = json.load(fh)
-    except (OSError, ValueError) as exc:
-        raise SystemExit(f"aggregate: cannot read --papercuts snapshot {path!r}: {exc}")
-    if isinstance(raw, dict):
-        for key in ("issues", "papercuts"):
-            if isinstance(raw.get(key), list):
-                raw = raw[key]
-                break
-    if not isinstance(raw, list):
-        raise SystemExit(f"aggregate: --papercuts snapshot {path!r} must be a JSON array or {{\"issues\": [...]}}")
+    paths = [p for p in path if p] if isinstance(path, (list, tuple)) else [path]
+    if not paths:
+        return None
     per_skill = {}
     unmatched = 0
-    for rec in raw:
-        if not isinstance(rec, dict):
-            unmatched += 1
-            continue
-        match = PAPERCUT_SKILL_RE.search(str(rec.get("body") or ""))
-        # Sentence-final periods are prose, not part of the name ("skill: debrief." joins debrief).
-        skill = canon_skill(match.group(1).rstrip(".")) if match else ""
-        if not skill:
-            unmatched += 1
-            continue
-        entry = per_skill.setdefault(skill, {"filed": 0, "open": 0, "fixed": 0})
-        entry["filed"] += 1
-        state = str(rec.get("state") or "").upper()
-        reason = str(rec.get("stateReason") or "").upper()
-        if state == "OPEN":
-            entry["open"] += 1
-        elif state == "CLOSED" and reason != "NOT_PLANNED":
-            entry["fixed"] += 1
+    seen_ids = set()
+    for p in paths:
+        try:
+            with open(p, encoding="utf-8") as fh:
+                raw = json.load(fh)
+        except (OSError, ValueError) as exc:
+            raise SystemExit(f"aggregate: cannot read --papercuts snapshot {p!r}: {exc}")
+        if isinstance(raw, dict):
+            for key in ("issues", "papercuts"):
+                if isinstance(raw.get(key), list):
+                    raw = raw[key]
+                    break
+        if not isinstance(raw, list):
+            raise SystemExit(f"aggregate: --papercuts snapshot {p!r} must be a JSON array or {{\"issues\": [...]}}")
+        for rec in raw:
+            if not isinstance(rec, dict):
+                unmatched += 1
+                continue
+            num = rec.get("number")
+            dedup_key = (p, num) if num is not None else None
+            if dedup_key and dedup_key in seen_ids:
+                continue
+            if dedup_key:
+                seen_ids.add(dedup_key)
+            pre_skill = str(rec.get("skill") or "").strip()
+            if pre_skill:
+                skill = canon_skill(pre_skill.rstrip("."))
+            else:
+                match = PAPERCUT_SKILL_RE.search(str(rec.get("body") or ""))
+                # Sentence-final periods are prose, not part of the name ("skill: debrief." joins debrief).
+                skill = canon_skill(match.group(1).rstrip(".")) if match else ""
+            if not skill:
+                unmatched += 1
+                continue
+            entry = per_skill.setdefault(skill, {"filed": 0, "open": 0, "fixed": 0})
+            entry["filed"] += 1
+            state = str(rec.get("state") or "").upper()
+            reason = str(rec.get("stateReason") or "").upper()
+            if state == "OPEN":
+                entry["open"] += 1
+            elif state == "CLOSED" and reason != "NOT_PLANNED":
+                entry["fixed"] += 1
     return {
-        "snapshot": path,
+        "snapshot": paths[0] if len(paths) == 1 else paths,
         "total_filed": sum(e["filed"] for e in per_skill.values()),
         "total_open": sum(e["open"] for e in per_skill.values()),
         "total_fixed": sum(e["fixed"] for e in per_skill.values()),

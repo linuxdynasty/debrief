@@ -14,6 +14,7 @@ const PKG_ROOT = path.resolve(__dirname, "..");
 const PIPELINE_CMDS = new Set([
   "sessions",
   "prepare",
+  "sync-github",
   "cache-write",
   "aggregate",
   "diff",
@@ -44,6 +45,7 @@ Usage:
 Pipeline commands:
   debrief sessions [opts]        List discoverable sessions across harnesses
   debrief prepare [opts]         Extract Stage 1 metadata & queue Stage 2 facet batches
+  debrief sync-github [opts]     Cache GitHub PR reviews & papercut issues locally via gh
   debrief cache-write [opts]     Validate & store Stage 2 facet JSON records
   debrief aggregate [opts]       Merge sessions, hooks, git change-points, Pareto fronts & diff
   debrief diff [opts]            Compare two snapshots or snapshot vs aggregate

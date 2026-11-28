@@ -156,7 +156,7 @@ def interjection_reason_stats(top_metas, all_metas):
     )
 
 
-def build_skill_recommendations(skill_table, repos, skill_sizes, unattributed_reasons, days_active=14, pareto=None, changepoints=None):
+def build_skill_recommendations(skill_table, repos, skill_sizes, unattributed_reasons, days_active=14, pareto=None, changepoints=None, review_escapes=None):
     """Generate evidence-backed Create / Modify / Remove skill recommendations."""
     recs = []
     seen = set()
@@ -274,6 +274,38 @@ def build_skill_recommendations(skill_table, repos, skill_sizes, unattributed_re
             suggestions.append(f"trim overhead or reduce friction to reach the frontier defined by {peers}")
         if reasons:
             add("modify", sk, "; ".join(reasons) + ".", "; ".join(dict.fromkeys(suggestions)).capitalize() + ".")
+
+    # 1b. POST-PUSH PR REVIEW ESCAPES: surface real post-push catches ahead of generic backlog items.
+    if isinstance(review_escapes, dict) and safe_int(review_escapes.get("prs_reviewed"), 0) > 0:
+        timing_p1 = safe_int(review_escapes.get("timing_noise_p1"), 0)
+        rep_timing = safe_int(review_escapes.get("prs_with_repeat_p1_timing"), 0)
+        if timing_p1 >= 3 or rep_timing >= 2:
+            add(
+                "modify",
+                "PR reviewer / CI timing",
+                f"{timing_p1} CI-pending/sandbox P1(s) ({rep_timing} repeat-P1 PRs) fired before live CI completed.",
+                "Have your PR reviewer wait for required CI checks (or mark pending CI non-blocking) so real defects are not buried under timing noise.",
+            )
+        for crow in (review_escapes.get("by_category") or [])[:3]:
+            cnt = safe_int(crow.get("p0"), 0) + safe_int(crow.get("p1"), 0) + safe_int(crow.get("p2"), 0)
+            if cnt >= 2:
+                cat = crow.get("category") or "general"
+                prs_lbl = ", ".join(f"#{n}" for n in (crow.get("prs") or [])[:4])
+                add(
+                    "modify",
+                    f"pre-push guard ({cat})",
+                    f"{cnt} post-push review catch(es) in '{cat}' ({safe_int(crow.get('p1'), 0)} P1, {safe_int(crow.get('p2'), 0)} P2; PRs {prs_lbl}).",
+                    str(crow.get("hint") or "Add a pre-push check targeting this defect class.").capitalize() + ".",
+                )
+        unans_pct = review_escapes.get("unanswered_pct")
+        unres_m = safe_int(review_escapes.get("threads_unresolved_on_merged"), 0)
+        if (unans_pct is not None and safe_float(unans_pct, 0.0) >= 40.0 and safe_int(review_escapes.get("threads_total"), 0) >= 5) or unres_m >= 5:
+            add(
+                "create",
+                "pre-push unanswered-thread guard",
+                f"{unans_pct}% of inline PR review threads got zero replies ({unres_m} still open after merge).",
+                "Block a second git push via hook when open P0/P1 threads remain unanswered, and arm a PR watcher after gh pr create.",
+            )
 
     # 2. CREATE: active repos with many skill-less sessions + friction, or high unattributed redirects/debugging.
     for r in repos:

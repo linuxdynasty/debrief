@@ -136,6 +136,7 @@ def _extract_kpis(agg):
     eval_wrs = [w for w in eval_wrs if 0.0 <= w <= 1.0]
     f1s = [safe_float(r.get("trigger_f1"), -1.0) for r in skills if r.get("trigger_f1") is not None]
     f1s = [f for f in f1s if 0.0 <= f <= 1.0]
+    rev = agg.get("review_escapes") if isinstance(agg.get("review_escapes"), dict) else {}
     return {
         "total_sessions": tot_sess,
         "top_level_sessions": top_sess,
@@ -149,6 +150,10 @@ def _extract_kpis(agg):
         "cache_hit_pct": round((c_hits / c_tot) * 100.0, 2) if c_tot > 0 else None,
         "eval_mean_win_rate": round(sum(eval_wrs) / len(eval_wrs), 4) if eval_wrs else None,
         "trigger_mean_f1": round(sum(f1s) / len(f1s), 4) if f1s else None,
+        "review_escape_rate_pct": rev.get("escape_rate_pct"),
+        "review_repeat_p1_rate_pct": rev.get("repeat_p1_rate_pct"),
+        "review_timing_noise_p1": rev.get("timing_noise_p1"),
+        "review_unanswered_pct": rev.get("unanswered_pct"),
     }
 
 

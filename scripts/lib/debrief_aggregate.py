@@ -59,6 +59,8 @@ from debrief_scope import (  # noqa: E402
     resolve_window,
     session_detail_rows,
 )
+from debrief_github import discover_cached_github_files  # noqa: E402
+from debrief_reviews import review_escape_stats  # noqa: E402
 from debrief_triggers import join_trigger_rows, trigger_stats  # noqa: E402
 
 
@@ -340,8 +342,14 @@ def cmd_aggregate(args):
     costs_by_skill = {r["skill"]: r for r in skill_costs["per_skill"]}
     skill_table, hooks_summary = _aggregate_hooks(hook_events, mined_skills, costs_by_skill, metas)
 
-    papercuts = papercut_stats(getattr(args, "papercuts", "") or "")
+    no_gh_cache = bool(getattr(args, "no_github_cache", False))
+    cached_rev, cached_pc = ([], []) if no_gh_cache else discover_cached_github_files(args.repo or [], cache_dir=cache_dir)
+    pc_src = (getattr(args, "papercuts", "") or "") or (cached_pc if cached_pc else "")
+    papercuts = papercut_stats(pc_src)
     filed_by_skill = papercuts["per_skill"] if papercuts else {}
+    rev_paths = list(dict.fromkeys([p for p in (getattr(args, "pr_reviews", None) or []) if p] + cached_rev))
+    review_escapes = review_escape_stats(rev_paths, metas=metas, since_epoch=since_ep)
+    rev_by_skill = review_escapes["per_skill"] if review_escapes else {}
     eval_records = []
     evals = eval_stats(getattr(args, "evals", None) or [], records_out=eval_records)
     history_paths = getattr(args, "eval_history", None) or []
@@ -358,6 +366,9 @@ def cmd_aggregate(args):
         row["papercut_filed"] = counts["filed"]
         row["papercut_open"] = counts.get("open", max(0, counts["filed"] - counts["fixed"]))
         row["papercut_fixed"] = counts["fixed"]
+        rs = rev_by_skill.get(row["skill"]) or {}
+        row["escaped_p1"] = safe_int(rs.get("real_p1"), 0)
+        row["escaped_p2"] = safe_int(rs.get("real_p2"), 0)
         ev = evals_by_skill.get(row["skill"]) or {}
         row["eval_win_rate"] = ev.get("win_rate")
         row["eval_noise_band"] = ev.get("noise_band")
@@ -380,6 +391,7 @@ def cmd_aggregate(args):
     skill_recs = build_skill_recommendations(
         skill_table, repositories, skill_sizes, ij_unattr, days_active,
         pareto=pareto, changepoints=None if ignore_cp else cp_impact,
+        review_escapes=review_escapes,
     )
     sess_health = session_health_stats(metas.values(), skill_costs)
     scope_meta = build_scope_meta(
@@ -445,6 +457,7 @@ def cmd_aggregate(args):
         "session_health": sess_health,
         "skill_costs": skill_costs,
         "papercuts": papercuts,
+        "review_escapes": review_escapes,
         "evals": evals,
         "eval_trends": eval_trend_stats,
         "trigger_evals": trigger_evals,
