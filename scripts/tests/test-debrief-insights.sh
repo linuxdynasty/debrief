@@ -72,8 +72,10 @@ PYEOF
 #    interjection_reasons (prompt #2+ only, zero raw text in meta), and Create/Modify/Remove recs.
 export HOME="${work}/home"
 export XDG_DATA_HOME="${work}/xdg"
+export DEBRIEF_DATA_DIR="${work}/data"
 mkdir -p "${HOME}/.claude/projects/-Users-alice-personal-repos-eshu" \
 	"${HOME}/.claude/projects/-Users-alice-personal-repos-eshu--claude-worktrees-drive-1" \
+	"${DEBRIEF_DATA_DIR}" \
 	"${HOME}/.gemini/antigravity-cli/brain/agy-conv-1/.system_generated/logs" \
 	"${XDG_DATA_HOME}/muse/sessions/muse-s1"
 

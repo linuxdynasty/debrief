@@ -333,7 +333,7 @@ def render_repo_activity_section(agg):
         bars.append(
             f'<div class="bar-row">'
             f'<div class="bar-label" title="{_e(r["repo"])}">{_e(r["repo"])}</div>'
-            f'<div class="bar-track"><div class="bar-fill" style="width:{pct:.1f}%;background:#0284c7"></div></div>'
+            f'<div class="bar-track"><div class="bar-fill" style="width:{pct:.1f}%;background:var(--evidence)"></div></div>'
             f'<div class="bar-value">{r["total_sessions"]:,}</div></div>'
         )
     trows = []
@@ -351,11 +351,11 @@ def render_repo_activity_section(agg):
             f'<td>{_e(top_r)}</td></tr>'
         )
     return (
-        '<div class="chart-card" style="margin:20px 0;overflow-x:auto">'
+        '<div class="chart-card" style="overflow-x:auto">'
         '<div class="chart-title">Activity by Repository</div>'
-        '<div style="font-size:12px;color:#64748b;margin:-6px 0 10px">'
-        'Where your sessions ran (git worktrees and Claude worktree paths are grouped under their parent repo).'
-        '</div>'
+        '<details class="note"><summary>How to read</summary><p>'
+        'Where your sessions ran. Git worktrees and Claude worktree paths are grouped under their parent repo.'
+        '</p></details>'
         + "\n".join(bars)
         + '<table style="margin-top:14px"><thead><tr>'
         '<th>Repository</th>'
@@ -377,9 +377,9 @@ def render_interjection_reasons_card(agg):
     reasons = (agg.get("charts") or {}).get("interjection_reasons") or {}
     if not reasons or not any(safe_int(v, 0) > 0 for v in reasons.values()):
         return (
-            '<div class="chart-card" style="margin:20px 0">'
+            '<div class="chart-card">'
             '<div class="chart-title">Why You Interjected (Follow-Up Intent)</div>'
-            '<div class="subtitle" style="margin:0">No follow-up prompts classified in this window.</div></div>'
+            '<div class="card-hint">No follow-up prompts classified in this window.</div></div>'
         )
     items = sorted(((k, safe_int(v, 0)) for k, v in reasons.items() if safe_int(v, 0) > 0), key=lambda kv: (-kv[1], kv[0]))
     total = sum(v for _, v in items) or 1
@@ -392,20 +392,18 @@ def render_interjection_reasons_card(agg):
         rows.append(
             f'<div class="bar-row">'
             f'<div class="bar-label" style="width:205px" title="{_e(lbl)}">{_e(lbl)}</div>'
-            f'<div class="bar-track"><div class="bar-fill" style="width:{pct:.1f}%;background:#f97316"></div></div>'
+            f'<div class="bar-track"><div class="bar-fill" style="width:{pct:.1f}%;background:var(--direction)"></div></div>'
             f'<div class="bar-value" style="width:82px">{v:,} ({share}%)</div></div>'
         )
     return (
-        '<div class="chart-card" style="margin:20px 0">'
+        '<div class="chart-card">'
         '<div class="chart-title">Why You Interjected (Follow-Up Intent)</div>'
-        '<div style="font-size:12px;color:#64748b;margin:-6px 0 10px">'
-        'Every follow-up prompt (turn #2+) classified locally without storing raw prompt text: '
-        '<strong>Redirecting Goal</strong> = agent drifted or skipped a step (strongest signal to tighten a skill); '
-        '<strong>Debugging</strong> = errors/failures forced intervention; '
-        '<strong>Thinking / Q&amp;A</strong> = deliberate design discussion; '
-        '<strong>Adding Scope</strong> = chaining new work; '
-        '<strong>Approving</strong> = confirming next steps.'
-        '</div>'
+        '<details class="note"><summary>How to read</summary><p>'
+        'Every follow-up prompt (turn #2 and later) is classified locally, without storing raw prompt text. '
+        'Redirecting goal means the agent drifted or skipped a step, the strongest signal to tighten a skill. '
+        'Debugging means an error forced intervention. Thinking and Q&amp;A means deliberate design discussion. '
+        'Adding scope means chaining new work. Approving means confirming next steps.'
+        '</p></details>'
         + "\n".join(rows)
         + '</div>'
     )
@@ -428,11 +426,8 @@ def render_skill_recommendations_card(agg):
             f'<td>{_e(r.get("suggestion"))}</td></tr>'
         )
     return (
-        '<div class="chart-card" style="margin:0 0 18px;overflow-x:auto">'
+        '<div class="chart-card" style="overflow-x:auto">'
         '<div class="chart-title">Recommended Skill Actions (Create / Modify / Remove)</div>'
-        '<div style="font-size:12px;color:#64748b;margin:-6px 0 10px">'
-        'Auto-prioritized from your repo frequency, skill usage, overhead, error rates, open papercuts, A/B evals, and goal-redirect interjections.'
-        '</div>'
         '<table><thead><tr>'
         '<th>Action</th><th>Skill / Repo Target</th><th>Why (Evidence)</th><th>Suggested Next Step</th>'
         '</tr></thead><tbody>'

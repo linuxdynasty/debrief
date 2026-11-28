@@ -208,21 +208,21 @@ def render_radar_card(agg):
     cx, cy, max_r = 190.0, 165.0, 112.0
     n = len(RADAR_AXES)
     svg = [
-        '<svg viewBox="-55 0 490 330" width="440" height="330" role="img" aria-label="Operational Trajectory Radar" style="max-width:100%;height:auto;display:block">',
+        '<svg viewBox="-70 0 520 330" width="520" height="330" role="img" aria-label="Operational Trajectory Radar" style="height:auto;display:block">',
     ]
 
     # Concentric grid rings (25%, 50%, 75%, 100%)
     for ring in (0.25, 0.5, 0.75, 1.0):
         pts = " ".join(f"{_xy(cx, cy, max_r * ring, i, n)[0]:.1f},{_xy(cx, cy, max_r * ring, i, n)[1]:.1f}" for i in range(n))
-        svg.append(f'<polygon points="{pts}" fill="none" stroke="#e2e8f0" stroke-width="1"/>')
+        svg.append(f'<polygon points="{pts}" class="plot-grid" fill="none" stroke-width="1"/>')
     # Spokes + labels
     for i, (key, label, hint) in enumerate(RADAR_AXES):
         x2, y2 = _xy(cx, cy, max_r, i, n)
-        svg.append(f'<line x1="{cx:.1f}" y1="{cy:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="#cbd5e1" stroke-width="1"/>')
-        lx, ly = _xy(cx, cy, max_r + 22.0, i, n)
+        svg.append(f'<line x1="{cx:.1f}" y1="{cy:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" class="plot-grid" stroke-width="1"/>')
+        lx, ly = _xy(cx, cy, max_r + 20.0, i, n)
         anchor = "middle" if abs(lx - cx) < 12 else ("start" if lx > cx else "end")
         dy = "0.35em"
-        svg.append(f'<text x="{lx:.1f}" y="{ly:.1f}" text-anchor="{anchor}" dy="{dy}" font-size="11" font-weight="600" fill="#334155"><title>{_e(hint)}</title>{_e(label)}</text>')
+        svg.append(f'<text x="{lx:.1f}" y="{ly:.1f}" text-anchor="{anchor}" dy="{dy}" class="plot-label" font-size="16" font-weight="600"><title>{_e(hint)}</title>{_e(label)}</text>')
 
     # Previous snapshot polygon (dashed slate overlay) when diff is present
     if has_diff:
@@ -233,8 +233,8 @@ def render_radar_card(agg):
             px, py = _xy(cx, cy, r, i, n)
             p_pts.append(f"{px:.1f},{py:.1f}")
         svg.append(
-            f'<polygon points="{" ".join(p_pts)}" fill="rgba(100,116,139,0.12)" '
-            f'stroke="#64748b" stroke-width="2" stroke-dasharray="5,4"/>'
+            f'<polygon points="{" ".join(p_pts)}" class="series-prev-area" '
+            f'stroke-width="2" stroke-dasharray="5,4"/>'
         )
 
     # Current window polygon (filled teal/indigo)
@@ -252,11 +252,8 @@ def render_radar_card(agg):
                 drec = radar_diff["axes"].get(key) or {}
                 if drec.get("delta") is not None:
                     tip += f" | prev: {drec['prev']:.2f} (delta {drec['delta']:+.2f})"
-            color = "#0f766e" if has_diff else "#4f46e5"
-            dots.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="4.2" fill="{color}" stroke="#ffffff" stroke-width="1.5"><title>{_e(tip)}</title></circle>')
-    poly_stroke = "#0f766e" if has_diff else "#4f46e5"
-    poly_fill = "rgba(15,118,110,0.22)" if has_diff else "rgba(79,70,229,0.20)"
-    svg.append(f'<polygon points="{" ".join(c_pts)}" fill="{poly_fill}" stroke="{poly_stroke}" stroke-width="2.2"/>')
+            dots.append(f'<circle cx="{px:.1f}" cy="{py:.1f}" r="4.2" class="dot-current" stroke-width="1.5"><title>{_e(tip)}</title></circle>')
+    svg.append(f'<polygon points="{" ".join(c_pts)}" class="series-current-area" stroke-width="2.2"/>')
     svg.extend(dots)
     svg.append("</svg>")
 
@@ -274,44 +271,45 @@ def render_radar_card(agg):
             dv = drec.get("delta")
             p_txt = f"{pv:.2f}" if pv is not None else "n/a"
             if dv is None:
-                badge = '<span style="color:#64748b">n/a</span>'
+                badge = '<span class="delta-flat">n/a</span>'
             elif dv >= 0.02:
-                badge = f'<span style="color:#15803d;font-weight:700">{dv:+.2f} &uarr;</span>'
+                badge = f'<span class="delta-up">{dv:+.2f} &uarr;</span>'
             elif dv <= -0.02:
-                badge = f'<span style="color:#b91c1c;font-weight:700">{dv:+.2f} &darr;</span>'
+                badge = f'<span class="delta-down">{dv:+.2f} &darr;</span>'
             else:
-                badge = f'<span style="color:#64748b">{dv:+.2f} &rarr;</span>'
+                badge = f'<span class="delta-flat">{dv:+.2f} &rarr;</span>'
             delta_td = f'<td style="text-align:right;font-family:monospace">{_e(p_txt)}</td><td style="text-align:right;font-family:monospace">{badge}</td>'
         rows.append(
             f'<tr><td><strong>{_e(label)}</strong></td>'
-            f'<td style="text-align:right;font-family:monospace">{_e(c_txt)}</td>'
+            f'<td class="num">{_e(c_txt)}</td>'
             f'{delta_td}'
-            f'<td style="font-size:11px;color:#64748b">{_e(raw_txt)}</td></tr>'
+            f'<td class="card-hint">{_e(raw_txt)}</td></tr>'
         )
 
-    th_diff = '<th style="text-align:right">Prev</th><th style="text-align:right">Move</th>' if has_diff else ""
+    th_diff = '<th class="num">Prev</th><th class="num">Move</th>' if has_diff else ""
     legend = (
-        '<div style="font-size:12px;color:#475569;margin-bottom:8px">'
-        '<span style="display:inline-block;width:12px;height:3px;background:#0f766e;vertical-align:middle;margin-right:4px"></span>Current '
-        '&nbsp;&nbsp;<span style="display:inline-block;width:12px;height:0;border-top:2px dashed #64748b;vertical-align:middle;margin-right:4px"></span>Previous'
+        '<div class="card-hint">'
+        '<span class="legend-swatch"></span>Current '
+        '&nbsp;&nbsp;<span class="legend-swatch legend-dash"></span>Previous'
         '</div>'
     ) if has_diff else ""
     banner = ""
     if has_diff and radar_diff.get("area_delta_pct") is not None:
         ad = radar_diff["area_delta_pct"]
-        cls = "#15803d" if ad > 0 else ("#b91c1c" if ad < 0 else "#475569")
+        cls = "delta-up" if ad > 0 else ("delta-down" if ad < 0 else "delta-flat")
         verb = "Expanded" if ad > 0 else ("Contracted" if ad < 0 else "Unchanged")
-        banner = f'<span style="font-size:12px;font-weight:700;color:{cls};margin-left:8px">Trajectory: {verb} {ad:+.1f}% area</span>'
+        banner = f'<span class="{cls}" style="margin-left:8px">Trajectory: {verb} {ad:+.1f}% area</span>'
 
     return (
-        '<div class="chart-card" id="section-radar" style="margin:20px 0">'
+        '<div class="chart-card" id="section-radar">'
         f'<div class="chart-title">Operational Trajectory Radar (Outward = Better){banner}</div>'
         f'{legend}'
-        '<div style="display:flex;flex-wrap:wrap;gap:20px;align-items:center">'
-        f'<div style="flex:0 0 380px">{"".join(svg)}</div>'
-        '<div style="flex:1;min-width:260px">'
-        '<table class="skill-table" style="margin:0;width:100%">'
-        f'<thead><tr><th>Axis</th><th style="text-align:right">Curr</th>{th_diff}<th>Raw Signal</th></tr></thead>'
+        '<div class="radar-split">'
+        '<div class="radar-plot">'
+        f'<div class="plot-scroll">{"".join(svg)}</div></div>'
+        '<div class="radar-table">'
+        '<table class="skill-table">'
+        f'<thead><tr><th>Axis</th><th class="num">Curr</th>{th_diff}<th>Raw Signal</th></tr></thead>'
         f'<tbody>{"".join(rows)}</tbody></table>'
         '</div></div></div>'
     )
@@ -325,7 +323,7 @@ def render_diff_accountability_card(agg):
     warn_html = ""
     if diff.get("scope_warnings"):
         items = "".join(f"<li>{_e(w)}</li>" for w in diff["scope_warnings"])
-        warn_html = f'<div style="background:#fef3c7;border:1px solid #f59e0b;border-radius:6px;padding:8px 12px;margin-bottom:12px;font-size:12px"><strong>Scope mismatch note:</strong><ul style="margin:4px 0 0 16px">{items}</ul></div>'
+        warn_html = f'<div class="notice notice-warn"><strong>Scope mismatch note:</strong><ul>{items}</ul></div>'
 
     pills = []
     labels = {
@@ -340,33 +338,33 @@ def render_diff_accountability_card(agg):
         kd = (diff.get("kpi_deltas") or {}).get(key) or {}
         if kd.get("delta") is None:
             continue
-        col = "#15803d" if kd.get("improved") is True else ("#b91c1c" if kd.get("improved") is False else "#475569")
+        col = "delta-up" if kd.get("improved") is True else ("delta-down" if kd.get("improved") is False else "delta-flat")
         pills.append(
-            f'<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:6px 10px;font-size:12px">'
-            f'<div style="color:#64748b;font-size:11px">{_e(lbl)}</div>'
-            f'<div style="font-weight:700;color:{col}">{_e(kd["prev"])} &rarr; {_e(kd["curr"])} ({kd["delta"]:+.2f})</div></div>'
+            f'<div class="pill">'
+            f'<div class="pill-label">{_e(lbl)}</div>'
+            f'<div class="pill-value {col}">{_e(kd["prev"])} &rarr; {_e(kd["curr"])} ({kd["delta"]:+.2f})</div></div>'
         )
     hv = diff.get("pareto_hv") or {}
     if hv.get("delta") is not None:
-        col = "#15803d" if hv["delta"] > 0 else ("#b91c1c" if hv["delta"] < 0 else "#475569")
+        col = "delta-up" if hv["delta"] > 0 else ("delta-down" if hv["delta"] < 0 else "delta-flat")
         pills.append(
-            f'<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:6px 10px;font-size:12px">'
-            f'<div style="color:#64748b;font-size:11px">Pareto Hypervolume</div>'
-            f'<div style="font-weight:700;color:{col}">{hv["prev"]:.3f} &rarr; {hv["curr"]:.3f} ({hv["delta"]:+.3f})</div></div>'
+            f'<div class="pill">'
+            f'<div class="pill-label">Pareto Hypervolume</div>'
+            f'<div class="pill-value {col}">{hv["prev"]:.3f} &rarr; {hv["curr"]:.3f} ({hv["delta"]:+.3f})</div></div>'
         )
-    pills_html = f'<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">{"".join(pills)}</div>' if pills else ""
+    pills_html = f'<div class="pill-row">{"".join(pills)}</div>' if pills else ""
 
     badge_styles = {
-        "implemented_verified": ("DONE + VERIFIED", "#dcfce7", "#166534"),
-        "implemented_ineffective": ("DONE + NO EFFECT", "#fee2e2", "#991b1b"),
-        "implemented_pending_data": ("DONE (PENDING DATA)", "#e0f2fe", "#075985"),
-        "not_done": ("NOT DONE", "#fef3c7", "#92400e"),
-        "resolved_externally": ("RESOLVED", "#f1f5f9", "#334155"),
+        "implemented_verified": ("DONE + VERIFIED", "status-good"),
+        "implemented_ineffective": ("DONE + NO EFFECT", "status-bad"),
+        "implemented_pending_data": ("DONE (PENDING DATA)", "status-neutral"),
+        "not_done": ("NOT DONE", "status-warn"),
+        "resolved_externally": ("RESOLVED", "status-neutral"),
     }
     rows = []
     for r in diff.get("accountability") or []:
         st = r.get("status") or "not_done"
-        lbl, bg, fg = badge_styles.get(st, (st.upper(), "#f1f5f9", "#334155"))
+        lbl, badge_cls = badge_styles.get(st, (st.upper(), "status-neutral"))
         if st == "not_done" and safe_int(r.get("carry_over_count"), 0) > 1:
             lbl += f" (x{r['carry_over_count']})"
         m = r.get("metric") or {}
@@ -374,19 +372,19 @@ def render_diff_accountability_card(agg):
         ev_txt = "; ".join(r.get("evidence") or []) or "no target change detected"
         rows.append(
             f'<tr>'
-            f'<td><span style="display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700;background:{bg};color:{fg}">{_e(lbl)}</span></td>'
-            f'<td><strong>{_e(r.get("target"))}</strong><div style="font-size:11px;color:#64748b">{_e(r.get("summary"))}</div></td>'
-            f'<td style="font-size:12px">{_e(ev_txt)}</td>'
-            f'<td style="font-size:12px;font-family:monospace">{_e(m_txt)}</td></tr>'
+            f'<td><span class="status-badge {badge_cls}">{_e(lbl)}</span></td>'
+            f'<td><strong>{_e(r.get("target"))}</strong><div class="card-hint">{_e(r.get("summary"))}</div></td>'
+            f'<td>{_e(ev_txt)}</td>'
+            f'<td class="mono">{_e(m_txt)}</td></tr>'
         )
     table_html = (
-        '<table class="skill-table" style="width:100%">'
+        '<table class="skill-table">'
         '<thead><tr><th>Status</th><th>Previous Recommendation</th><th>Implementation Evidence</th><th>Metric Move</th></tr></thead>'
         f'<tbody>{"".join(rows)}</tbody></table>'
-    ) if rows else '<div style="font-size:12px;color:#64748b">No open recommendations were tracked in the previous snapshot.</div>'
+    ) if rows else '<div class="card-hint">No open recommendations were tracked in the previous snapshot.</div>'
 
     return (
-        '<div class="chart-card" id="section-diff" style="margin:20px 0">'
+        '<div class="chart-card" id="section-diff">'
         f'<div class="chart-title">Diff vs Previous Report ({_e(diff.get("prev_snapshot_id"))}) &amp; Recommendation Accountability</div>'
         f'{warn_html}{pills_html}{table_html}</div>'
     )

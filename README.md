@@ -132,7 +132,7 @@ Reports and snapshots are written under `$DEBRIEF_DATA_DIR/debrief-reports/` (de
 
 ## Example Report & CLI Output
 
-See a real sanitized multi-harness report generated from open-source [Eshu](https://github.com/eshu-hq/eshu) sessions across all 5 harnesses: **[`examples/eshu-sample-report.html`](examples/eshu-sample-report.html)** (download and open locally in any browser — 100% offline, zero external requests).
+Open **[`examples/demo-sample-report.html`](examples/demo-sample-report.html)** in any browser. It is a complete report rendered from synthetic data: 100% offline, zero external requests, inline CSS, fonts, and SVG. Regenerate it with `python3 scripts/lib/debrief_demo_fixture.py --html examples/demo-sample-report.html`.
 
 ### Terminal Summary (`debrief render` / `debrief summary`)
 ```text
@@ -163,18 +163,37 @@ PARETO FRONT & DIFF ACCOUNTABILITY
 ========================================================================
 ```
 
-### Interactive Offline HTML Report Previews
+### Interactive Offline HTML Report
 
-Browse the **[full 10-section screenshot walkthrough in `examples/README.md`](examples/README.md)** or download [`examples/eshu-sample-report.html`](examples/eshu-sample-report.html) to explore every chart interactively offline.
+The report opens on a one-screen summary and reveals six further groups on
+demand: health, work, flow, skills, coaching, and next steps. The navigation bar
+stays pinned while you read, and `Expand all` opens every group at once.
 
-**Overview, At a Glance & KPI Strip**
-![Report Overview and At a Glance](examples/screenshots/01-overview-at-a-glance.png)
+![Light report summary with a large editorial statement and six headline metrics](examples/screenshots/01-summary.jpeg)
 
-**6-Axis Operational Trajectory Radar**
-![Operational Trajectory Radar](examples/screenshots/03-trajectory-radar.png)
+**A briefing before the charts.** The summary leads with what changed, what
+hindered progress, and what to try next. Everything else stays collapsed until
+you ask for it.
 
-**Multi-Objective Pareto Front, Skill Actions & Cache Health**
-![Multi-Objective Pareto Front](examples/screenshots/08-pareto-front.png)
+| Workflow evidence | Skill scorecard |
+|---|---|
+| ![Dark workflow view with response-time and prompt-distribution bars](examples/screenshots/02-flow.jpeg) | ![Dark skill scorecard with a cyan highlighted row](examples/screenshots/03-skills.jpeg) |
+
+**Evidence without filled cards.** Hairlines, a cyan evidence hue, purple
+navigation, and red adverse states carry the hierarchy in both themes. Method
+notes open as info tooltips, and table rows highlight without moving text.
+
+<p align="center">
+  <img src="examples/screenshots/04-mobile.jpeg" alt="Mobile report summary with compact sticky navigation" width="390">
+</p>
+
+**The same reading order on mobile.** Navigation stays 43px high, wide tables
+scroll inside their containers, and the report keeps its editorial hierarchy.
+
+The example is generated from a deterministic fixture, so screenshots and design
+experiments never expose a real user's sessions. See
+[`examples/README.md`](examples/README.md) for the screenshot tour, fixture
+tables, and regeneration command.
 
 ---
 

@@ -361,11 +361,11 @@ def render_single_session_banner(agg):
     goal = d.get("goal") or "Not yet classified (run prepare + Stage 2 facets for goal/outcome)."
     outcome = d.get("outcome") or "unclassified"
     fric = d.get("friction_detail") or ""
-    fric_html = f'<div style="margin-top:6px;color:#991b1b"><strong>Friction:</strong> {esc(fric)}</div>' if fric else ""
+    fric_html = f'<div style="margin-top:var(--s1);color:var(--adverse-ink)"><strong>Friction:</strong> {esc(fric)}</div>' if fric else ""
     return (
-        '<div class="at-a-glance" style="border-left:4px solid #0284c7;margin-bottom:20px">'
+        '<div class="session-banner">'
         '<div class="glance-title">Session Deep-Dive</div>'
-        f'<div style="font-size:13px;color:#334155;line-height:1.6">'
+        f'<div class="session-banner-body">'
         f'<strong>Session:</strong> <code>{esc(d.get("session_id"))}</code> '
         f'&middot; <strong>Harness:</strong> {esc(d.get("harness"))} '
         f'&middot; <strong>Project:</strong> {esc(d.get("project"))} '

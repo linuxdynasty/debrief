@@ -7,7 +7,8 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 CLI="${ROOT}/bin/debrief.mjs"
 
 work="$(mktemp -d)"
-trap 'rm -rf "${work}"' EXIT
+probe="${ROOT}/scripts/lib/__pycache__/packaging-probe.pyc"
+trap 'rm -rf "${work}"; rm -f "${probe}"' EXIT
 
 export HOME="${work}/home"
 export XDG_DATA_HOME="${work}/xdg-data"
@@ -162,4 +163,25 @@ test -f "${custom_rt}/bin/debrief.mjs"
 DEBRIEF_DATA_DIR="${other_data}" node "${CLI}" uninstall --all >/dev/null
 echo "ok - staged runtime stays under XDG_DATA_HOME/debrief/runtime even when DEBRIEF_DATA_DIR is overridden"
 
-echo "PASS test-installer: 6 checks green"
+# 7. The package excludes local bytecode but includes the offline font runtime.
+mkdir -p "$(dirname "${probe}")"
+printf 'packaging probe' >"${probe}"
+npm pack --dry-run --json >"${work}/pack.json"
+python3 -B - "${work}/pack.json" <<'PY'
+import json, sys
+pack = json.load(open(sys.argv[1]))[0]
+files = {entry["path"] for entry in pack["files"]}
+assert not any(path.endswith((".pyc", ".pyo")) or "__pycache__" in path for path in files), sorted(files)
+required = {
+    "scripts/lib/debrief_fonts.py",
+    "scripts/lib/assets/fonts/archivo.woff2",
+    "scripts/lib/assets/fonts/ibm-plex-mono.woff2",
+    "scripts/lib/assets/fonts/archivo-OFL.txt",
+    "scripts/lib/assets/fonts/ibm-plex-mono-OFL.txt",
+}
+assert required <= files, sorted(required - files)
+PY
+rm -f "${probe}"
+echo "ok - npm package excludes bytecode and includes the offline font runtime"
+
+echo "PASS test-installer: 7 checks green"

@@ -39,12 +39,14 @@ def _safe_js_json(obj):
 
 
 def _label(key):
-    return str(key or "").replace("_", " ").strip().title()
+    """Humanize a data key without Title Casing every word: 'ship_a_fix' -> 'Ship a fix'."""
+    raw = str(key or "").replace("_", " ").strip()
+    return raw[:1].upper() + raw[1:] if raw else raw
 
 
 def _render_bars(data, color, title_case=True, left_col="", right_col=""):
     if not data or not any(v for v in data.values()):
-        return '<div class="subtitle" style="margin:0">No observations in this window.</div>'
+        return '<div class="card-hint">No observations in this window.</div>'
     mx = max(data.values()) or 1
     out = []
     if left_col or right_col:
@@ -63,12 +65,15 @@ def _render_bars(data, color, title_case=True, left_col="", right_col=""):
 
 
 def _render_chart_card(title, data, color, title_case=True, footer="", left_col="", right_col="", hint=""):
-    hint_html = f'<div style="font-size:12px;color:#64748b;margin:-6px 0 10px">{_e(hint)}</div>' if hint else ""
-    foot = f'<div style="font-size:12px;color:#64748b;margin-top:8px">{footer}</div>' if footer else ""
+    hint_html = (
+        f'<details class="note"><summary>How to read</summary><p>{_e(hint)}</p></details>'
+        if hint else ""
+    )
+    foot = f'<p class="chart-foot">{footer}</p>' if footer else ""
     return (
-        f'<div class="chart-card">'
+        '<div class="chart-card">'
         f'<div class="chart-title">{_e(title)}</div>'
-        f'{hint_html}{_render_bars(data, color, title_case=title_case, left_col=left_col, right_col=right_col)}{foot}</div>'
+        f'{_render_bars(data, color, title_case=title_case, left_col=left_col, right_col=right_col)}{foot}{hint_html}</div>'
     )
 
 
@@ -197,7 +202,7 @@ def render_html(agg, syn):
         cell = f'{_e(med_by_h[h])}s' if med_by_h[h] is not None else "—"
         gap_rows.append(f'<tr><td><code>{_e(h)}</code></td><td class="num">{cell}</td></tr>')
     gap_harness_table = (
-        '<div class="chart-card" style="margin:0 0 20px">'
+        '<div class="chart-card">'
         '<div class="chart-title">Median Response Gap by Harness</div>'
         '<table><thead><tr><th>Harness</th><th class="num">Median gap</th></tr></thead>'
         f'<tbody>{"".join(gap_rows) or "<tr><td colspan=2>No multi-turn gaps observed.</td></tr>"}</tbody></table></div>'
@@ -229,6 +234,8 @@ def render_html(agg, syn):
     m_prompts = safe_int(meta.get("prompts"), 0)
     m_tools = safe_int(meta.get("tool_calls"), 0)
     m_top = safe_int(meta.get("top_level_sessions"), 0)
+    m_sub_total = safe_int(meta.get("total_sessions"), 0)
+    session_sub = f'<span class="meta-sub"> of {m_sub_total}</span>' if m_sub_total > m_top else ""
     m_tot = safe_int(meta.get("total_sessions"), 0)
     m_fac = safe_int(meta.get("facets_analyzed"), 0)
     m_days = safe_int(meta.get("days_active"), 1)
@@ -248,153 +255,235 @@ def render_html(agg, syn):
 <style>{REPORT_CSS}</style>
 </head>
 <body>
+<svg class="grain" aria-hidden="true" focusable="false">
+  <filter id="grain-filter"><feTurbulence type="fractalNoise" baseFrequency="0.82" numOctaves="3" stitchTiles="stitch"></feTurbulence></filter>
+  <rect width="100%" height="100%" filter="url(#grain-filter)"></rect>
+</svg>
 <div class="container">
-  <h1>Multi-Harness Agent Debrief</h1>
-  <p class="subtitle">{m_prompts:,} prompts &middot; {m_tools:,} tool calls across {m_top} top-level sessions ({m_tot} total, {m_fac} facets analyzed) &middot; {_e(meta.get("from"))} to {_e(meta.get("to"))} &middot; Harnesses: {_e(harnesses_lbl)}{proj_lbl}</p>
-
-  {render_single_session_banner(agg)}
-
-  <div class="at-a-glance">
-    <div class="glance-title">At a Glance</div>
-    <div class="glance-sections">
-      <div class="glance-section"><strong>What's working:</strong> {_e(glance.get("working"))} <a href="#section-wins" class="see-more">Impressive Things You Did &rarr;</a></div>
-      <div class="glance-section"><strong>What's hindering you:</strong> {_e(glance.get("hindering"))} <a href="#section-friction" class="see-more">Where Things Go Wrong &rarr;</a></div>
-      <div class="glance-section"><strong>Quick wins to try:</strong> {_e(glance.get("quick_wins"))} <a href="#section-fixes" class="see-more">Rules, Skills &amp; Hooks &rarr;</a></div>
-      <div class="glance-section"><strong>Ambitious workflows:</strong> {_e(glance.get("ambitious"))} <a href="#section-horizon" class="see-more">On the Horizon &rarr;</a></div>
+  <header class="masthead">
+    <div class="masthead-top">
+      <p class="eyebrow">Operational debrief</p>
+      <div class="theme-control">
+        <span class="theme-label">Theme</span>
+        <button id="theme-toggle" class="theme-toggle" type="button" onclick="cycleTheme()" aria-label="Color theme: follow system">Auto</button>
+      </div>
     </div>
-  </div>
+    <h1>Multi-Harness Agent Debrief</h1>
+    <p class="subtitle">{_e(meta.get("from"))} to {_e(meta.get("to"))} &middot; Harnesses: {_e(harnesses_lbl)}{proj_lbl}</p>
+    <dl class="masthead-meta">
+      <div><dt>Prompts</dt><dd>{m_prompts:,}</dd></div>
+      <div><dt>Tool calls</dt><dd>{m_tools:,}</dd></div>
+      <div><dt>Sessions</dt><dd>{m_top}{session_sub}</dd></div>
+      <div><dt>Lines changed</dt><dd>{_e(lines_str)}</dd></div>
+      <div><dt>{"Merges" if repos else "Commits"}</dt><dd>{merges if repos else m_commits}</dd></div>
+      <div><dt>Active days</dt><dd>{m_days}d</dd></div>
+    </dl>
+  </header>
 
-  <nav class="nav-toc">
-    <a href="#section-radar">Trajectory Radar</a>
-    <a href="#section-coaching">Coaching Playbook</a>
-    <a href="#section-work">What You Work On</a>
-    <a href="#section-usage">How You Work</a>
-    <a href="#section-harnesses">Harnesses &amp; Skills</a>
-    <a href="#section-wins">Impressive Things</a>
-    <a href="#section-friction">Where Things Go Wrong</a>
-    <a href="#section-fixes">Rules, Skills &amp; Hooks</a>
-    <a href="#section-patterns">New Usage Patterns</a>
-    <a href="#section-horizon">On the Horizon</a>
+  <nav class="site-nav" aria-label="Report sections">
+    <div class="nav-links">
+      <a href="#g-summary" data-index="01">Summary</a>
+      <a href="#g-health" data-index="02">Health</a>
+      <a href="#g-work" data-index="03">Work</a>
+      <a href="#g-flow" data-index="04">Flow</a>
+      <a href="#g-skills" data-index="05">Skills</a>
+      <a href="#g-coach" data-index="06">Coach</a>
+      <a href="#g-next" data-index="07">Next</a>
+    </div>
+    <button class="nav-action" id="expand-toggle" type="button" aria-expanded="false">Expand all</button>
   </nav>
 
-  <div class="stats-row">
-    <div class="stat"><div class="stat-value">{m_prompts:,}</div><div class="stat-label">User Prompts</div></div>
-    <div class="stat"><div class="stat-value">{m_tools:,}</div><div class="stat-label">Tool Calls</div></div>
-    <div class="stat"><div class="stat-value">{m_fac}</div><div class="stat-label">Sessions Analyzed</div></div>
-    <div class="stat"><div class="stat-value">{_e(lines_str)}</div><div class="stat-label">Lines Changed (+/-)</div></div>
-    <div class="stat"><div class="stat-value">{merges if repos else m_commits}</div><div class="stat-label">{"Merge Commits" if repos else "Git Commits"}</div></div>
-    <div class="stat"><div class="stat-value">{m_days}d ({m_mpd:.1f}/d)</div><div class="stat-label">Active Days</div></div>
-  </div>
+{render_single_session_banner(agg)}
 
-  {render_diff_accountability_card(agg)}
-
-  {render_changepoint_card(agg)}
-
-  {render_radar_card(agg)}
-
-  {render_coaching_playbook_card(agg)}
-
-  <h2 id="section-work">What You Work On</h2>
-  <div class="project-areas">{areas_html}</div>
-
-  {render_repo_activity_section(agg)}
-
-  <div class="charts-row">
-    {_render_chart_card("What You Wanted", charts.get("what_you_wanted"), "#2563eb", left_col="Goal", right_col="Sessions")}
-    {_render_chart_card("Top Tools Used", charts.get("top_tools"), "#0891b2", title_case=False, left_col="Tool", right_col="Calls")}
-  </div>
-  <div class="charts-row">
-    {_render_chart_card("Languages Touched", charts.get("languages"), "#10b981", title_case=False, left_col="Language", right_col="File touches")}
-    {_render_chart_card("Session Types", charts.get("session_types"), "#8b5cf6", left_col="Type", right_col="Sessions")}
-  </div>
-
-  <h2 id="section-usage">How You Use Your Harnesses</h2>
-  <div class="narrative">
-    {narr_paras}
-    <div class="key-insight"><strong>Key pattern:</strong> {_e(key_ins)}</div>
-  </div>
-
-  {_render_chart_card("User Response Time Distribution", charts.get("response_time_buckets"), "#6366f1", title_case=False, footer=gap_foot, left_col="Time until your next reply", right_col="Replies", hint="How long you took to reply after an agent finished a turn. Fast (2s–1m) = live back-and-forth; 1–5m = reviewing output or switching agents; >5m = async / parallel delegation (average includes overnight pauses — look at median for active pace).")}
-
-  {gap_harness_table}
-
-  {_render_chart_card("Prompts Per Session (Interjections)", prompt_dist_disp, "#0ea5e9", title_case=False, footer=ij_foot, left_col="Prompts in session", right_col="Sessions", hint="How many messages you sent in a single main chat. 1 prompt = autonomous one-shot; 2–3 = light nudge; 4+ = interactive iteration or heavy steering.")}
-
-  {render_interjection_reasons_card(agg)}
-
-  <div class="chart-card" style="margin:20px 0">
-    <div class="chart-title">Multi-Agent Parallelism (Overlapping Sessions Across Harnesses)</div>
-    <div class="overlap-stats">
-      <div><div class="overlap-num">{ov_ev}</div><div class="stat-label">Overlap Events</div></div>
-      <div><div class="overlap-num">{ov_sess}</div><div class="stat-label">Sessions Involved</div></div>
-      <div><div class="overlap-num">{ov_pct}%</div><div class="stat-label">Of Prompts</div></div>
+  <details class="group" id="g-summary" open>
+    <summary>
+      <span class="group-num">01</span>
+      <span class="group-title">Summary</span>
+      <span class="group-hint">What the window produced, in the order it matters.</span>
+    </summary>
+    <div class="group-body">
+      <section class="briefing" aria-label="Briefing">
+        <div class="briefing-lead">
+          <span class="briefing-label">What's working</span>
+          <p class="briefing-statement">{_e(glance.get("working"))}</p>
+          <a href="#section-wins" class="see-more">The wins &rarr;</a>
+        </div>
+        <div class="briefing-items">
+          <div class="briefing-item">
+            <span class="briefing-label">What's hindering you</span>
+            <p>{_e(glance.get("hindering"))}</p>
+            <a href="#section-friction" class="see-more">See the friction &rarr;</a>
+          </div>
+          <div class="briefing-item">
+            <span class="briefing-label">Quick wins to try</span>
+            <p>{_e(glance.get("quick_wins"))}</p>
+            <a href="#section-coach-rules" class="see-more">See the fixes &rarr;</a>
+          </div>
+          <div class="briefing-item">
+            <span class="briefing-label">Ambitious workflows</span>
+            <p>{_e(glance.get("ambitious"))}</p>
+            <a href="#section-horizon" class="see-more">See what's next &rarr;</a>
+          </div>
+        </div>
+        <p class="briefing-note">{m_top} top-level sessions &middot; {m_fac} facets analyzed &middot; {m_days} active days</p>
+      </section>
     </div>
-    <p style="font-size:13px;color:#475569">Detected when top-level sessions overlap in wall-clock time across Muse, Antigravity, and Claude.</p>
-  </div>
+  </details>
 
-  <div class="charts-row">
-    <div class="chart-card">
-      <div class="chart-title" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-        <span>Prompts by Time of Day</span>
-        <select id="timezone-select" style="font-size:11px;padding:3px 6px;border-radius:4px;border:1px solid #cbd5e1">
-          <option value="-8">PT (UTC-8)</option>
-          <option value="-5" selected>ET (UTC-5)</option>
-          <option value="0">UTC</option>
-          <option value="1">CET (UTC+1)</option>
-          <option value="9">Tokyo (UTC+9)</option>
-        </select>
+  <details class="group" id="g-health">
+    <summary>
+      <span class="group-num">02</span>
+      <span class="group-title">Health</span>
+      <span class="group-hint">The six-axis profile, and what moved since the last report.</span>
+    </summary>
+    <div class="group-body">
+      {render_radar_card(agg)}
+      {render_diff_accountability_card(agg)}
+      {render_changepoint_card(agg)}
+      {render_session_health_section(agg)}
+    </div>
+  </details>
+
+  <details class="group" id="g-work">
+    <summary>
+      <span class="group-num">03</span>
+      <span class="group-title">Work</span>
+      <span class="group-hint">Where the time went, by project, repository, and language.</span>
+    </summary>
+    <div class="group-body">
+      <h2 id="section-work">What You Work On</h2>
+      <div class="project-areas">{areas_html}</div>
+      {render_repo_activity_section(agg)}
+      <div class="charts-row">
+        {_render_chart_card("What You Wanted", charts.get("what_you_wanted"), "var(--evidence)", left_col="Goal", right_col="Sessions")}
+        {_render_chart_card("Top Tools Used", charts.get("top_tools"), "var(--evidence)", title_case=False, left_col="Tool", right_col="Calls")}
       </div>
-      <div id="hour-histogram"></div>
+      <div class="charts-row">
+        {_render_chart_card("Languages Touched", charts.get("languages"), "var(--evidence)", title_case=False, left_col="Language", right_col="File touches")}
+        {_render_chart_card("Session Types", charts.get("session_types"), "var(--evidence)", left_col="Type", right_col="Sessions")}
+      </div>
     </div>
-    {_render_chart_card("Tool Errors Encountered", charts.get("tool_error_categories"), "#dc2626", title_case=False, left_col="Error type", right_col="Occurrences")}
-  </div>
+  </details>
 
-  {render_harness_skill_section(agg)}
+  <details class="group" id="g-flow">
+    <summary>
+      <span class="group-num">04</span>
+      <span class="group-title">Flow</span>
+      <span class="group-hint">How you steered, how fast you answered, and where the loop broke.</span>
+    </summary>
+    <div class="group-body">
+      <h2 id="section-usage">How You Use Your Harnesses</h2>
+      <div class="narrative">
+        {narr_paras}
+        <div class="key-insight"><span style="color:var(--muted);font-family:var(--font-mono);font-size:var(--fs-6);letter-spacing:0.08em;text-transform:uppercase">Key pattern</span><br>{_e(key_ins)}</div>
+      </div>
 
-  {render_skill_trends_card(agg)}
+      <div class="charts-row">
+        {_render_chart_card("User Response Time Distribution", charts.get("response_time_buckets"), "var(--evidence)", title_case=False, footer=gap_foot, left_col="Time until your next reply", right_col="Replies", hint="How long you took to reply after an agent finished a turn. Fast (2s-1m) = live back-and-forth; 1-5m = reviewing output or switching agents; over 5m = async or parallel delegation. The average includes overnight pauses, so read the median for active pace.")}
+        {_render_chart_card("Prompts Per Session", prompt_dist_disp, "var(--evidence)", title_case=False, footer=ij_foot, left_col="Prompts in session", right_col="Sessions", hint="How many messages you sent in a single main chat. One prompt is an autonomous one-shot, two or three is a light nudge, four or more is interactive iteration or heavy steering.")}
+      </div>
 
-  {render_trigger_card(agg)}
+      {gap_harness_table}
 
-  {render_pareto_card(agg)}
+      {render_interjection_reasons_card(agg)}
 
-  {render_skill_recommendations_card(agg)}
+      <div class="chart-card">
+        <div class="chart-title">Multi-Agent Parallelism</div>
+        <div class="overlap-stats">
+          <div><div class="overlap-num">{ov_ev}</div><div class="stat-label">Overlap Events</div></div>
+          <div><div class="overlap-num">{ov_sess}</div><div class="stat-label">Sessions Involved</div></div>
+          <div><div class="overlap-num">{ov_pct}%</div><div class="stat-label">Of Prompts</div></div>
+        </div>
+        <details class="note"><summary>How to read</summary><p>Sessions overlap in wall-clock time across the harnesses in this window. Overlap is not a problem by itself; it explains fast reply gaps and split attention.</p></details>
+      </div>
 
-  {render_session_health_section(agg)}
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-title chart-title-row">
+            <span>Prompts by Time of Day</span>
+            <select id="timezone-select">
+              <option value="-8">PT (UTC-8)</option>
+              <option value="-5" selected>ET (UTC-5)</option>
+              <option value="0">UTC</option>
+              <option value="1">CET (UTC+1)</option>
+              <option value="9">Tokyo (UTC+9)</option>
+            </select>
+          </div>
+          <div id="hour-histogram"></div>
+        </div>
+        {_render_chart_card("Tool Errors Encountered", charts.get("tool_error_categories"), "var(--adverse)", title_case=False, left_col="Error type", right_col="Occurrences")}
+      </div>
+    </div>
+  </details>
 
-  <h2 id="section-wins">Impressive Things You Did</h2>
-  <p class="section-intro">{_e(syn.get("wins_intro"))}</p>
-  <div class="big-wins">{wins_html}</div>
+  <details class="group" id="g-skills">
+    <summary>
+      <span class="group-num">05</span>
+      <span class="group-title">Skills</span>
+      <span class="group-hint">Load counts, cost, and the skills worth changing.</span>
+    </summary>
+    <div class="group-body">
+      {render_harness_skill_section(agg)}
+      {render_skill_trends_card(agg)}
+      {render_trigger_card(agg)}
+      {render_pareto_card(agg)}
+      {render_skill_recommendations_card(agg)}
+    </div>
+  </details>
 
-  <div class="charts-row">
-    {_render_chart_card("What Helped Most", charts.get("what_helped_most"), "#16a34a", left_col="Factor", right_col="Sessions")}
-    {_render_chart_card("Session Outcomes", charts.get("outcomes"), "#8b5cf6", left_col="Outcome", right_col="Sessions")}
-  </div>
+  <details class="group" id="g-coach">
+    <summary>
+      <span class="group-num">06</span>
+      <span class="group-title">Coach</span>
+      <span class="group-hint">What worked, what failed, and the rules that would have prevented it.</span>
+    </summary>
+    <div class="group-body">
+      <h2 id="section-wins">Impressive Things You Did</h2>
+      <p class="section-intro">{_e(syn.get("wins_intro"))}</p>
+      <div class="big-wins">{wins_html}</div>
+      <div class="charts-row">
+        {_render_chart_card("What Helped Most", charts.get("what_helped_most"), "var(--evidence)", left_col="Factor", right_col="Sessions")}
+        {_render_chart_card("Session Outcomes", charts.get("outcomes"), "var(--evidence)", left_col="Outcome", right_col="Sessions")}
+      </div>
 
-  <h2 id="section-friction">Where Things Go Wrong</h2>
-  <p class="section-intro">{_e(fric_intro)}</p>
-  <div class="friction-categories">{fric_html}</div>
+      <h2 id="section-friction">Where Things Go Wrong</h2>
+      <p class="section-intro">{_e(fric_intro)}</p>
+      <div class="friction-categories">{fric_html}</div>
+      <div class="charts-row">
+        {_render_chart_card("Primary Friction Types", charts.get("primary_friction_types"), "var(--adverse)", left_col="Friction type", right_col="Sessions")}
+        {_render_chart_card("Inferred Satisfaction", charts.get("satisfaction"), "var(--evidence)", left_col="Rating", right_col="Sessions")}
+      </div>
 
-  <div class="charts-row">
-    {_render_chart_card("Primary Friction Types", charts.get("primary_friction_types"), "#dc2626", left_col="Friction type", right_col="Sessions")}
-    {_render_chart_card("Inferred Satisfaction (Model-Estimated)", charts.get("satisfaction"), "#eab308", left_col="Rating", right_col="Sessions")}
-  </div>
+      <h2 id="section-coaching">Coaching Playbook</h2>
+      {render_coaching_playbook_card(agg)}
 
-  <h2 id="section-fixes">Rules, Skills &amp; Hooks to Add or Tune</h2>
-  {_render_rules(syn.get("agents_md_additions"))}
-  {_render_features(syn.get("features_to_try"))}
+      <h2 id="section-coach-rules">Rules, Skills &amp; Hooks to Add or Tune</h2>
+      {_render_rules(syn.get("agents_md_additions"))}
+      {_render_features(syn.get("features_to_try"))}
+    </div>
+  </details>
 
-  <h2 id="section-patterns">New Ways to Use Your Harnesses</h2>
-  {_render_patterns(syn.get("usage_patterns"))}
+  <details class="group" id="g-next">
+    <summary>
+      <span class="group-num">07</span>
+      <span class="group-title">Next</span>
+      <span class="group-hint">Patterns to keep, workflows to try, and what this report cannot see.</span>
+    </summary>
+    <div class="group-body">
+      <h2 id="section-patterns">New Ways to Use Your Harnesses</h2>
+      {_render_patterns(syn.get("usage_patterns"))}
 
-  <h2 id="section-horizon">On the Horizon</h2>
-  <p class="section-intro">{_e(syn.get("horizon_intro"))}</p>
-  {_render_horizon(syn.get("horizon_workflows"))}
+      <h2 id="section-horizon">On the Horizon</h2>
+      <p class="section-intro">{_e(syn.get("horizon_intro"))}</p>
+      {_render_horizon(syn.get("horizon_workflows"))}
 
-  <div class="caveats">
-    <strong>Not tracked on purpose &amp; correlation caveats</strong>
-    <ul>{caveats_li}</ul>
-    <p style="margin-top:8px">Fixtures excluded from hook log: {m_fix}. Generated offline with zero external requests.</p>
-  </div>
+      <div class="caveats">
+        <strong>Not tracked on purpose</strong>
+        <ul>{caveats_li}</ul>
+        <p class="chart-foot">Fixtures excluded from the hook log: {m_fix}. Generated offline with zero external requests.</p>
+      </div>
+    </div>
+  </details>
 </div>
 <script>
 const rawUtcHours = {utc_hours_json};

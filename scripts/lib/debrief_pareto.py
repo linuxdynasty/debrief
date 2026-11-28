@@ -314,25 +314,25 @@ def _render_portfolio_svg(front):
     sx = lambda ov: pad_l + (ov / max_ov) * pw
     sy = lambda ef: pad_t + (1.0 - (ef - min_eff) / eff_span) * ph
 
-    svg = [f'<svg viewBox="0 0 {int(w)} {int(h)}" width="100%" role="img" aria-label="Skill Portfolio Pareto Frontier" style="max-width:{int(w)}px;height:auto;display:block;background:#fcfdff;border:1px solid #e2e8f0;border-radius:8px">']
+    svg = [f'<svg viewBox="0 0 {int(w)} {int(h)}" width="{int(w)}" height="{int(h)}" role="img" aria-label="Skill Portfolio Pareto Frontier" class="plot-frame" style="height:auto;display:block">']
     for step in (0.0, 0.25, 0.5, 0.75, 1.0):
         gy, val = pad_t + (1.0 - step) * ph, min_eff + step * eff_span
         gx, ov_val = pad_l + step * pw, step * max_ov
-        svg.append(f'<line x1="{pad_l:.1f}" y1="{gy:.1f}" x2="{w - pad_r:.1f}" y2="{gy:.1f}" stroke="#eef2f7" stroke-width="1"/>')
-        svg.append(f'<text x="{pad_l - 8:.1f}" y="{gy + 3.5:.1f}" text-anchor="end" font-size="11" fill="#64748b">{val:.2f}</text>')
-        svg.append(f'<line x1="{gx:.1f}" y1="{pad_t:.1f}" x2="{gx:.1f}" y2="{h - pad_b:.1f}" stroke="#f1f5f9" stroke-width="1"/>')
-        svg.append(f'<text x="{gx:.1f}" y="{h - pad_b + 16:.1f}" text-anchor="middle" font-size="11" fill="#64748b">{_e(_fmt_ov_tick(ov_val))}</text>')
+        svg.append(f'<line x1="{pad_l:.1f}" y1="{gy:.1f}" x2="{w - pad_r:.1f}" y2="{gy:.1f}" class="plot-grid" stroke-width="1"/>')
+        svg.append(f'<text x="{pad_l - 8:.1f}" y="{gy + 3.5:.1f}" text-anchor="end" class="plot-tick" font-size="16">{val:.2f}</text>')
+        svg.append(f'<line x1="{gx:.1f}" y1="{pad_t:.1f}" x2="{gx:.1f}" y2="{h - pad_b:.1f}" class="plot-grid" stroke-width="1"/>')
+        svg.append(f'<text x="{gx:.1f}" y="{h - pad_b + 16:.1f}" text-anchor="middle" class="plot-tick" font-size="16">{_e(_fmt_ov_tick(ov_val))}</text>')
 
-    svg.append(f'<line x1="{pad_l:.1f}" y1="{pad_t:.1f}" x2="{pad_l:.1f}" y2="{h - pad_b:.1f}" stroke="#94a3b8" stroke-width="1.3"/>')
-    svg.append(f'<line x1="{pad_l:.1f}" y1="{h - pad_b:.1f}" x2="{w - pad_r:.1f}" y2="{h - pad_b:.1f}" stroke="#94a3b8" stroke-width="1.3"/>')
-    svg.append(f'<text x="{pad_l + pw / 2:.1f}" y="{h - 8:.1f}" text-anchor="middle" font-size="12" font-weight="600" fill="#475569">Overhead Tokens / Load (Lower is Better &larr;)</text>')
-    svg.append(f'<text x="16" y="{pad_t + ph / 2:.1f}" text-anchor="middle" font-size="12" font-weight="600" fill="#475569" transform="rotate(-90 16 {pad_t + ph / 2:.1f})">Effectiveness (&uarr;)</text>')
-    svg.append(f'<text x="{pad_l + 8:.1f}" y="{pad_t + 14:.1f}" font-size="10" font-weight="600" fill="#0f766e">&#9733; Ideal zone (high eff, low overhead)</text>')
+    svg.append(f'<line x1="{pad_l:.1f}" y1="{pad_t:.1f}" x2="{pad_l:.1f}" y2="{h - pad_b:.1f}" class="plot-axis" stroke-width="1.3"/>')
+    svg.append(f'<line x1="{pad_l:.1f}" y1="{h - pad_b:.1f}" x2="{w - pad_r:.1f}" y2="{h - pad_b:.1f}" class="plot-axis" stroke-width="1.3"/>')
+    svg.append(f'<text x="{pad_l + pw / 2:.1f}" y="{h - 8:.1f}" text-anchor="middle" class="plot-label" font-size="16" font-weight="600">Overhead Tokens / Load (Lower is Better &larr;)</text>')
+    svg.append(f'<text x="16" y="{pad_t + ph / 2:.1f}" text-anchor="middle" class="plot-label" font-size="16" font-weight="600" transform="rotate(-90 16 {pad_t + ph / 2:.1f})">Effectiveness (&uarr;)</text>')
+    svg.append(f'<text x="{pad_l + 8:.1f}" y="{pad_t + 14:.1f}" class="plot-ideal" font-size="16" font-weight="600">&#9733; Ideal zone (high eff, low overhead)</text>')
 
     f_pts = sorted(front.get("frontier") or [], key=lambda p: (p["overhead_per_load"], -p["effectiveness"]))
     if len(f_pts) >= 2:
         poly = " ".join(f"{sx(p['overhead_per_load']):.1f},{sy(p['effectiveness']):.1f}" for p in f_pts)
-        svg.append(f'<polyline points="{poly}" fill="none" stroke="#0f766e" stroke-width="2.2" stroke-dasharray="6,4"/>')
+        svg.append(f'<polyline points="{poly}" fill="none" class="series-current-line" stroke-width="2.2" stroke-dasharray="6,4"/>')
 
     ordered = sorted(pts, key=lambda p: (1 if p.get("pareto_status") == "frontier" else 0, 1 if p.get("is_knee") else 0, p["loads"]))
     placed_dots = []
@@ -340,18 +340,18 @@ def _render_portfolio_svg(front):
         cx, cy = sx(p["overhead_per_load"]), sy(p["effectiveness"])
         rad = 5.0 + 6.5 * math.sqrt(p["loads"] / float(max_loads))
         is_front, is_knee = p.get("pareto_status") == "frontier", bool(p.get("is_knee"))
-        fill = "#d97706" if is_knee else ("#0f766e" if is_front else "#e11d48")
+        dot_cls = "dot-knee" if is_knee else ("dot-frontier" if is_front else "dot-dominated")
         tip = f"{p['skill']} ({p['pareto_status']}{' / KNEE' if is_knee else ''}): eff={p['effectiveness']:.2f}, overhead={p['overhead_per_load']/1e6:.2f}M/load, friction={p['friction_per_load']:.2f}, loads={p['loads']}"
         if p.get("dominated_by"):
             tip += f" | dominated by: {', '.join(p['dominated_by'][:5])}"
-        svg.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{rad:.1f}" fill="{fill}" fill-opacity="0.82" stroke="#ffffff" stroke-width="1.6"><title>{_e(tip)}</title></circle>')
+        svg.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{rad:.1f}" class="{dot_cls} dot-ring" fill-opacity="0.82" stroke-width="1.6"><title>{_e(tip)}</title></circle>')
         placed_dots.append((p, cx, cy, rad, is_front, is_knee))
 
     label_order = sorted(placed_dots, key=lambda t: (0 if t[5] else (1 if t[4] else 2), -(t[0]["loads"] + (1000 if t[0]["overhead_per_load"] > max_ov * 0.6 else 0))))
     boxes = []
     for p, cx, cy, rad, is_front, is_knee in label_order:
         lbl = ("★ " if is_knee else "") + str(p["skill"])[:22]
-        tw, th = max(36.0, len(lbl) * 6.3 + 6.0), 13.0
+        tw, th = max(48.0, len(lbl) * 8.8 + 8.0), 18.0
         for lx, ly, anc in (
             (cx + rad + 5, cy + 3.5, "start"), (cx - rad - 5, cy + 3.5, "end"),
             (cx + rad + 4, cy - rad - 3, "start"), (cx - rad - 4, cy - rad - 3, "end"),
@@ -366,9 +366,9 @@ def _render_portfolio_svg(front):
             if any(not (cand_box[2] < b[0] or cand_box[0] > b[2] or cand_box[3] < b[1] or cand_box[1] > b[3]) for b in boxes):
                 continue
             boxes.append(cand_box)
-            col = "#b45309" if is_knee else ("#0f766e" if is_front else "#334155")
+            col = "is-knee" if is_knee else ("is-front" if is_front else "is-dominated")
             wt = "700" if (is_front or is_knee) else "500"
-            svg.append(f'<text x="{lx:.1f}" y="{ly:.1f}" text-anchor="{anc}" font-size="11" font-weight="{wt}" fill="{col}" stroke="#ffffff" stroke-width="3" paint-order="stroke">{_e(lbl)}</text>')
+            svg.append(f'<text x="{lx:.1f}" y="{ly:.1f}" text-anchor="{anc}" class="plot-label {col}" font-size="16" font-weight="{wt}" stroke="var(--surface)" stroke-width="3" paint-order="stroke">{_e(lbl)}</text>')
             break
 
     svg.append("</svg>")
@@ -394,8 +394,8 @@ def render_pareto_card(agg):
             for r in regs
         )
         parts.append(
-            '<div style="background:#fef2f2;border:1px solid #ef4444;border-radius:6px;padding:10px 12px;margin-bottom:14px;font-size:12px">'
-            f'<strong style="color:#991b1b">Pareto HEAD Regression Alert ({len(regs)}):</strong><ul style="margin:4px 0 0 18px">{reg_li}</ul></div>'
+            '<div class="notice notice-bad">'
+            f'<strong>Pareto HEAD Regression Alert ({len(regs)}):</strong><ul>{reg_li}</ul></div>'
         )
 
     if p_fronts:
@@ -412,29 +412,29 @@ def render_pareto_card(agg):
             shown = ", ".join(peers[:3]) + (f" (+{len(peers) - 3} more)" if len(peers) > 3 else "")
             dom_rows.append(
                 f'<tr><td><strong>{_e(d["skill"])}</strong></td>'
-                f'<td style="font-size:11px">{_e(f["stratum"])} / {_e(f["quality_source"])}</td>'
-                f'<td style="font-family:monospace">{d["effectiveness"]:.2f}</td>'
-                f'<td style="font-family:monospace">{_e(_fmt_ov_tick(d["overhead_per_load"]))}</td>'
-                f'<td style="font-family:monospace">{d["friction_per_load"]:.2f}</td>'
-                f'<td style="font-size:12px;color:#b91c1c" title="{_e(", ".join(peers))}">{_e(shown)}</td></tr>'
+                f'<td class="card-hint">{_e(f["stratum"])} / {_e(f["quality_source"])}</td>'
+                f'<td class="mono">{d["effectiveness"]:.2f}</td>'
+                f'<td class="mono">{_e(_fmt_ov_tick(d["overhead_per_load"]))}</td>'
+                f'<td class="mono">{d["friction_per_load"]:.2f}</td>'
+                f'<td class="delta-down" title="{_e(", ".join(peers))}">{_e(shown)}</td></tr>'
             )
         more_note = (
-            f'<div style="font-size:11px;color:#64748b;margin-top:6px">Showing top 10 of {len(all_dom)} strictly dominated skills by load volume. Hover any bubble or cell for full peer list.</div>'
+            f'<div class="card-hint">Showing top 10 of {len(all_dom)} strictly dominated skills by load volume. Hover any bubble or cell for full peer list.</div>'
             if len(all_dom) > 10 else ""
         )
         dom_html = (
-            '<table class="skill-table" style="margin:12px 0 0;width:100%">'
+            '<table class="skill-table">'
             '<thead><tr><th>Dominated Skill</th><th>Stratum</th><th>Eff.</th><th>Ov/Load</th><th>Friction</th><th>Dominated By</th></tr></thead>'
             f'<tbody>{"".join(dom_rows)}</tbody></table>{more_note}'
-        ) if dom_rows else '<div style="font-size:12px;color:#15803d;margin-top:8px">All active skills in this stratum sit on the Pareto frontier (zero strictly dominated skills).</div>'
+        ) if dom_rows else '<div class="card-hint">All active skills in this stratum sit on the Pareto frontier (zero strictly dominated skills).</div>'
         hv_txt = f"{primary['hypervolume']:.3f}" if primary.get("hypervolume") is not None else "n/a"
         parts.append(
-            f'<div style="font-size:12px;color:#475569;margin-bottom:8px">'
+            f'<div class="card-hint">'
             f'Stratum: <strong>{_e(primary["stratum"])}</strong> ({_e(primary["quality_source"])}) &middot; '
             f'Knee: <strong>{_e(primary.get("knee_skill") or "n/a")}</strong> &middot; Hypervolume: <code>{_e(hv_txt)}</code> '
-            f'&nbsp;|&nbsp; <span style="color:#0f766e">&#9679; Frontier</span> &nbsp;<span style="color:#d97706">&#9733; Knee</span> &nbsp;<span style="color:#e11d48">&#9679; Dominated</span> '
-            f'&nbsp;&middot;&nbsp; <span style="color:#64748b">Bubble size = loads · Hover any dot for full metrics</span></div>'
-            f'<div style="margin-bottom:4px">{svg_html}</div>'
+            f'&nbsp;|&nbsp; <span class="legend-key is-front">&#9679; Frontier</span> &nbsp;<span class="legend-key is-knee">&#9733; Knee</span> &nbsp;<span class="legend-key is-dominated">&#9679; Dominated</span> '
+            f'&nbsp;&middot;&nbsp; Bubble size = loads &middot; Hover any dot for full metrics</div>'
+            f'<div class="plot-scroll">{svg_html}</div>'
             f'<div>{dom_html}</div>'
         )
 
@@ -443,21 +443,21 @@ def render_pareto_card(agg):
         for vf in v_fronts:
             f_shas = ", ".join(f"{x['sha']}{'*' if x.get('is_knee') else ''}" for x in vf["frontier"])
             d_shas = ", ".join(x["sha"] for x in vf["dominated"]) or "none"
-            st = '<span style="color:#b91c1c;font-weight:700">HEAD REGRESSED</span>' if vf["head_regressed"] else '<span style="color:#15803d;font-weight:700">HEAD ON FRONTIER</span>'
+            st = '<span class="delta-down">HEAD REGRESSED</span>' if vf["head_regressed"] else '<span class="delta-up">HEAD ON FRONTIER</span>'
             hv_s = f"{vf['hypervolume']:.3f}" if vf.get("hypervolume") is not None else "n/a"
             v_rows.append(
                 f'<tr><td><strong>{_e(vf["skill"])}</strong> ({_e(vf["harness"])})</td>'
-                f'<td>{st}</td><td><code>{_e(f_shas)}</code></td><td><code>{_e(d_shas)}</code></td><td style="font-family:monospace">{_e(hv_s)}</td></tr>'
+                f'<td>{st}</td><td><code>{_e(f_shas)}</code></td><td><code>{_e(d_shas)}</code></td><td class="mono">{_e(hv_s)}</td></tr>'
             )
         parts.append(
-            '<h4 style="margin:14px 0 6px;font-size:13px;color:#334155">Per-Skill Version Pareto Fronts (* = Knee)</h4>'
-            '<table class="skill-table" style="width:100%">'
+            '<h4>Per-Skill Version Pareto Fronts (* = Knee)</h4>'
+            '<table class="skill-table">'
             '<thead><tr><th>Skill (Harness)</th><th>HEAD Status</th><th>Frontier SHAs</th><th>Dominated SHAs</th><th>HV</th></tr></thead>'
             f'<tbody>{"".join(v_rows)}</tbody></table>'
         )
 
     return (
-        '<div class="chart-card" id="section-pareto" style="margin:20px 0">'
+        '<div class="chart-card" id="section-pareto">'
         '<div class="chart-title">Multi-Objective Pareto Front (Quality vs. Overhead vs. Friction)</div>'
         + "".join(parts)
         + "</div>"
