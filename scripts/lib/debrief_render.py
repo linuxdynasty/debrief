@@ -424,8 +424,7 @@ def render_html(agg, syn):
       <span class="group-hint">Load counts, cost, and the skills worth changing.</span>
     </summary>
     <div class="group-body">
-      {render_harness_skill_section(agg)}
-      {render_review_escapes_card(agg)}
+      {render_harness_skill_section(agg)}{("" if not render_review_escapes_card(agg) else "\n      " + render_review_escapes_card(agg))}
       {render_skill_trends_card(agg)}
       {render_trigger_card(agg)}
       {render_pareto_card(agg)}
